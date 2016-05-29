@@ -1,6 +1,9 @@
+language: cpp
 notifications:
-    - dilawar.s.rajput@gmail.com
-    - bhalla@ncbs.res.in
+    email:
+        recipients:
+            - dilawar.s.rajput@gmail.com
+            - bhalla@ncbs.res.in
 
 before_install:
     - sudo apt-get update -qq
