@@ -49,3 +49,6 @@ class ColorBar(moogli.core._moogli.ColorBar):
         colors = [self._colormap(value / (self._resolution - 1.0))
                   for value in range(self._resolution)]
         super(ColorBar, self).set_colors(colors)
+
+    def set_num_labels(self, num):
+        super(ColorBar, self).set_label_count(num)
