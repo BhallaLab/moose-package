@@ -166,12 +166,22 @@ ColorBar::set_parent_viewport(const osg::Vec4i & viewport)
 void
 ColorBar::set_scalar_range(const osg::Vec2f & scalar_range)
 {
+		/**
+		 * Fix by Upi Bhalla 2016 Aug 21. No need for casting to ints, and
+		 * in fact this messes things up because often ranges are floats
     scalar_bar -> setScalarsToColors(new osgSim::ColorRange( static_cast<int>(scalar_range.x())
                                                            , static_cast<int>(scalar_range.y())
                                                            , static_cast<const osgSim::ColorRange *>(scalar_bar -> getScalarsToColors()) -> getColors()
                                                            )
                                     );
-
+		*/
+    scalar_bar -> setScalarsToColors(
+		new osgSim::ColorRange( 
+			scalar_range.x() , scalar_range.y(),
+        	static_cast<const osgSim::ColorRange *>(
+					scalar_bar -> getScalarsToColors()) -> getColors()
+        )
+	);
 }
 
 osg::Vec2f
