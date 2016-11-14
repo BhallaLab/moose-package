@@ -14,7 +14,7 @@ endif( )
 
 option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
 option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
-
+option( WITH_MOOGLI "Build with moogli" OFF)
 message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 
 # CMAKE related option.
@@ -33,7 +33,7 @@ if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
 endif()
 
 # SUBMODULE locations.
-set(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-python)
+set(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
 set(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__build_moose_python)
 file(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
 
@@ -45,7 +45,7 @@ add_custom_target(moose_all ALL)
 set(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
 file(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
 add_custom_command(
-    OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
+    OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin 
     # Pass the environment variable so local installation gets searched.
     COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
         -DMOOSE_VERSION=${MOOSE_VERSION}
@@ -62,26 +62,20 @@ add_custom_target(_build_moose_python ALL
     )
 add_dependencies(moose_all _build_moose_python)
 
-# build moose-gui.
+################################################################################
+# GUI
+################################################################################
 set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
 set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moosegui
-    COMMAND ${CMAKE_COMMAND} 
-        -DCMAKE_INSTALL_PREFIX=${MOOSE_GUI_INSTALL_DIR}
-        -DMOOSE_VERSION=${MOOSE_VERSION}
-        ${MOOSE_GUI_DIR}
-    COMMAND $(MAKE)
-    COMMAND $(MAKE) install
-    WORKING_DIRECTORY ${MOOSE_GUI_DIR}
-    VERBATIM
-    )
-add_custom_target(_build_moose_gui ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
-    )
-add_dependencies(moose_all _build_moose_gui)
 
-option( WITH_MOOGLI "Build with moogli" OFF)
+find_package(PythonInterp REQUIRED)
+
+# Target does not build anything.
+add_custom_target(moosegui ALL)
+
+################################################################################
+# MOOGLI
+################################################################################
 if( WITH_MOOGLI )
 # Build moogli
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
@@ -102,7 +96,13 @@ if( WITH_MOOGLI )
         DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
         )
 
-# Create an archive
+    add_dependencies(moose_all _build_moogli)
+
+endif( WITH_MOOGLI )
+
+################################################################################
+# OTHERS
+################################################################################
 set( SOURCE_DISTRIBUTION
     ${CMAKE_CURRENT_BINARY_DIR}/moose-${MOOSE_VERSION}.tar.gz 
     )
@@ -112,13 +112,14 @@ add_custom_command(
         "${SOURCE_DISTRIBUTION}" "${CMAKE_CURRENT_SOURCE_DIR}"
     VERBATIM
     )
-endif( WITH_MOOGLI )
-
 add_custom_target(sdist ALL
     DEPENDS ${SOURCE_DISTRIBUTION}
     )
 
-add_dependencies(moose_all _build_moogli)
+
+################################################################################
+# INSTALL 
+################################################################################
 
 # Leading character is very important.
 INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
@@ -129,6 +130,32 @@ INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
 INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
     DESTINATION usr
     USE_SOURCE_PERMISSIONS
+    )
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui/
+    DESTINATION lib/moose/gui
+    COMPONENT moose-gui
+    )
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-examples
+    DESTINATION lib/moose/
+    COMPONENT moose-gui
+    PATTERN "_travis" EXCLUDE
+    PATTERN "CVS" EXCLUDE
+    PATTERN ".git*" EXCLUDE
+    )
+
+# create the launcher.
+set(MOOSEGUI_DIR /usr/lib/moose/gui)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/moosegui.in 
+    ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+    )
+
+# install the launchers,
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+    DESTINATION bin
+    COMPONENT moose-all
     )
 
 if( WITH_MOOGLI )
