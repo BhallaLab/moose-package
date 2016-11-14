@@ -1,0 +1,6 @@
+[submodule "moose"]
+	path = moose
+	url = https://github.com/BhallaLab/moose
+[submodule "moogli"]
+	path = moogli
+	url = https://github.com/BhallaLab/moogli
