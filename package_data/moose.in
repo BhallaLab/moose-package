@@ -1,0 +1,2 @@
+#!/bin/bash
+${MOOSE_BIN_PATH}/moose.bin "$@"
