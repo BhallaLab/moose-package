@@ -1,25 +1,49 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 # A dummy target to add dependencies later.
-project(moose-all)
-set(MOOSE_VERSION "3.1.1")
+project(moose_all)
 
-SET(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-python)
-SET(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__build_moose_python)
-FILE(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
+# ALL OPTIONS 
 
-## Options
+# Since we are building package, ask user to provide the version info from
+# command line.
+option( MOOSE_VERSION "Which moose version?" OFF)
+if( NOT MOOSE_VERSION )
+    message(FATAL "You must provide version info from command line" )
+endif( )
+
 option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
 option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
 
-
 message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
+
+# CMAKE related option.
+# Don't allow building in-source
+message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
+if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
+    message(FATAL_ERROR 
+        "======================================================================\n"
+        "In-source builds are not allowed. Remove CMakeCache.txt and CMakeFiles\n"
+        "directory and do something like this inside this directory \n"
+        "    $ mkdir _build_dir \n"
+        "    $ cd _build_dir  \n"
+        "    $ cmake ..  \n"
+        "===================================================================== \n"
+        )
+endif()
+
+# SUBMODULE locations.
+set(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-python)
+set(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__build_moose_python)
+file(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
+
+
 add_custom_target(moose_all ALL)
 
 # NOTE: Make sure to install moose-python and moose-gui to differnt prefixes.
 # Otherwise each call of make install with overwrite.
-SET(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
-FILE(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
+set(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
+file(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
 add_custom_command(
     OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     # Pass the environment variable so local installation gets searched.
@@ -39,7 +63,7 @@ add_custom_target(_build_moose_python ALL
 add_dependencies(moose_all _build_moose_python)
 
 # build moose-gui.
-set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
+set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
 set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moosegui

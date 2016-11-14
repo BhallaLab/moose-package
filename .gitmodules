@@ -13,3 +13,6 @@
 [submodule "external/OpenSceneGraph"]
 	path = external/OpenSceneGraph
 	url = https://github.com/openscenegraph/OpenSceneGraph
+[submodule "moose-examples"]
+	path = moose-examples
+	url = https://github.com/BhallaLab/moose-examples
