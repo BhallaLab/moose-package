@@ -112,7 +112,7 @@ add_custom_command(
         "${SOURCE_DISTRIBUTION}" "${CMAKE_CURRENT_SOURCE_DIR}"
     VERBATIM
     )
-add_custom_target(sdist ALL
+add_custom_target(sdist 
     DEPENDS ${SOURCE_DISTRIBUTION}
     )
 
