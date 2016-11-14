@@ -58,7 +58,6 @@ add_custom_command(
 
 add_custom_target(_build_moose_python ALL
     DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin 
-    ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     )
 add_dependencies(moose_all _build_moose_python)
 
@@ -66,7 +65,9 @@ add_dependencies(moose_all _build_moose_python)
 # GUI
 ################################################################################
 set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
+set(MOOSE_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-examples)
 set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
+file(MAKE_DIRECTORY ${MOOSE_GUI_INSTALL_DIR})
 
 find_package(PythonInterp REQUIRED)
 
@@ -132,12 +133,12 @@ INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
     USE_SOURCE_PERMISSIONS
     )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui/
+install(DIRECTORY ${MOOSE_GUI_DIR}/
     DESTINATION lib/moose/gui
     COMPONENT moose-gui
     )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-examples
+install(DIRECTORY ${MOOSE_EXAMPLE_DIR}/
     DESTINATION lib/moose/
     COMPONENT moose-gui
     PATTERN "_travis" EXCLUDE
