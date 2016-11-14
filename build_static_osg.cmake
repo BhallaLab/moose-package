@@ -2,7 +2,7 @@ MESSAGE("+++ Building local osg")
 SET(OSG_INSTALL_DIR ${CMAKE_BINARY_DIR}/_osg_static)
 FILE(MAKE_DIRECTORY ${OSG_INSTALL_DIR})
 
-SET(OSG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenSceneGraph-3.2.0/)
+SET(OSG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenSceneGraph-3.4.0/)
 
 # A target which depends on STATIC_OSG_LIBRARY
 ADD_CUSTOM_COMMAND(
