@@ -7,9 +7,12 @@ project(moose_all)
 
 # Since we are building package, ask user to provide the version info from
 # command line.
-option( MOOSE_VERSION "Which moose version?" OFF)
-if( NOT MOOSE_VERSION )
-    message(FATAL "You must provide version info from command line" )
+option(MOOSE_VERSION "Which moose version?" OFF)
+if(NOT MOOSE_VERSION)
+    message(FATAL_ERROR 
+        "You must provide version info from command line e.g. "
+        "\n   $ cmake -DMOOSE_VERSION=3.1.1 "
+        )
 endif( )
 
 option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
