@@ -43,7 +43,7 @@ file(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
 
 add_custom_target(moose_all ALL)
 
-# NOTE: Make sure to install moose-python and moose-gui to differnt prefixes.
+# NOTE: Install moose-python and moose-gui to differnt location.
 # Otherwise each call of make install with overwrite.
 set(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
 file(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
@@ -54,13 +54,14 @@ add_custom_command(
         -DMOOSE_VERSION=${MOOSE_VERSION}
         ${MOOSE_PYTHON_SOURCE_DIR}
     COMMAND $(MAKE)
-    COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
+    COMMAND $(MAKE) install _moose # We only need python interface.
+    #COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
     WORKING_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR}
     VERBATIM
     )
 
 add_custom_target(_build_moose_python ALL
-    DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin 
+    DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/python/moose/_moose.so 
     )
 add_dependencies(moose_all _build_moose_python)
 
@@ -150,7 +151,6 @@ install(DIRECTORY ${MOOSE_EXAMPLE_DIR}/
     )
 
 # create the launcher.
-set(MOOSEGUI_DIR /usr/lib/moose/gui)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/moosegui.in 
     ${CMAKE_CURRENT_BINARY_DIR}/moosegui
