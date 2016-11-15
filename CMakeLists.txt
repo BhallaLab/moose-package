@@ -17,7 +17,7 @@ endif( )
 
 option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
 option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
-option( WITH_MOOGLI "Build with moogli" OFF)
+option( WITH_MOOGLI "Build with moogli" ON)
 message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 
 # CMAKE related option.
@@ -167,7 +167,7 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
 
 if( WITH_MOOGLI )
     INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}/
-        DESTINATION usr
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
         USE_SOURCE_PERMISSIONS
         )
 endif( WITH_MOOGLI )
