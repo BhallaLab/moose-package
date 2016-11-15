@@ -48,7 +48,10 @@ add_custom_target(moose_all ALL)
 set(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
 file(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
 add_custom_command(
-    OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin 
+    # Using .so in dependency is not a great idea since its suffix will change
+    # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
+    # target to generate dependency. This target is never installed.
+    OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
     # Pass the environment variable so local installation gets searched.
     COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
         -DMOOSE_VERSION=${MOOSE_VERSION}
@@ -60,8 +63,12 @@ add_custom_command(
     VERBATIM
     )
 
+
+# NOTICE: Using .so in dependency is not a great idea since its suffix will change
+# on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
+# target to generate dependency. This target is never installed.
 add_custom_target(_build_moose_python ALL
-    DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/python/moose/_moose.so 
+    DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
     )
 add_dependencies(moose_all _build_moose_python)
 
@@ -126,15 +133,12 @@ add_custom_target(sdist
 # INSTALL 
 ################################################################################
 
-# Leading character is very important.
-INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
-    DESTINATION usr
+# We only want python module and not the moose components.
+INSTALL(
+    DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/lib/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
     USE_SOURCE_PERMISSIONS
-    )
-
-INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
-    DESTINATION usr
-    USE_SOURCE_PERMISSIONS
+    PATTERN "libmoose.so" EXCLUDE
     )
 
 install(DIRECTORY ${MOOSE_GUI_DIR}/
@@ -156,10 +160,9 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/moosegui
     )
 
-# install the launchers,
+## install the launchers,
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
     DESTINATION bin
-    COMPONENT moose-all
     )
 
 if( WITH_MOOGLI )
