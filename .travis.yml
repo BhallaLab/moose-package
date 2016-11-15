@@ -40,19 +40,19 @@ install:
 
 script:
     - ## CMAKE based flow
-    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
+    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.1.1 -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make && ctest --output-on-failure
     - cd .. # Now with boost.
-    - mkdir -p _BOOST_BUILD && cd _BOOST_BUILD && cmake -DWITH_BOOST=ON -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
+    - mkdir -p _BOOST_BUILD && cd _BOOST_BUILD && cmake -DMOOSE_VERSION=3.1.1 -DWITH_BOOST=ON -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make && ctest --output-on-failure
     - cd .. 
     - echo "Python3 support. Removed python2-networkx and install python3"
     - sudo apt-get remove -qq python-networkx
     - sudo apt-get install -qq python3-networkx
-    - mkdir -p _GSL_BUILD2 && cd _GSL_BUILD2 && cmake -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 ..
+    - mkdir -p _GSL_BUILD2 && cd _GSL_BUILD2 && cmake -DMOOSE_VERSION=3.1.1 -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 ..
     - make && ctest --output-on-failure
     - cd .. # Now with BOOST and python3
-    - mkdir -p _BOOST_BUILD2 && cd _BOOST_BUILD2 && cmake -DWITH_BOOST=ON -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 ..
+    - mkdir -p _BOOST_BUILD2 && cd _BOOST_BUILD2 && cmake -DMOOSE_VERSION=3.1.1 -DWITH_BOOST=ON -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 ..
     - make && ctest --output-on-failure
     - cd ..
     - echo "All done. Phew"
