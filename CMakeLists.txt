@@ -35,13 +35,88 @@ if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
         )
 endif()
 
+##############
+# Architecture.
+MESSAGE("++ Testing for architecture: 64 bit or 32 bit")
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    MESSAGE("++ 64 bit architecture")
+    set(LIBSUFFIX "64")
+    set(PKGARCH "amd64")
+    set(RPMPKGARCH "x86_64")
+else()
+    MESSAGE("++ 32 bit architecture")
+    set(LIBSUFFIX "")
+    set(PKGARCH "i386")
+endif()
+
+#################
 # SUBMODULE locations.
 set(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
 set(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__build_moose_python)
 file(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
 
-
+################################################################################
+# BUILD
+################################################################################
 add_custom_target(moose_all ALL)
+
+################################################################################
+# Build dependencies 
+################################################################################
+add_custom_target(_moose_static_dependencies ALL)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
+set(CMAKE_BUILD_TYPE Release)
+# This is essential to remove the RPATH.
+set(CMAKE_INSTALL_RPATH "")
+
+# Which local libraries need to be built, Here we just set the
+# the flags.
+find_package(GSL 1.16)
+# If installed version of gsl is not 1.16 then download and build gsl locally.
+# THIS IS USEFULL TO BUILD MOOSE FOR VARIOUS DISTRIBUTIONS.
+if(NOT GSL_FOUND)
+    MESSAGE(STATUS "No GSL found. Using local gsl")
+    set(LOCAL_GSL 1)
+else()
+    message(STATUS "GSL_VERSION ${GSL_VERSION}")
+    if(${GSL_VERSION} VERSION_LESS 1.16)
+        MESSAGE(STATUS  "Needed version 1.16. I'll now build priavate copy of GSL" )
+        SET(LOCAL_GSL 1)
+    endif()
+endif()
+
+set(ALL_STATIC_LIBS "")
+if(LOCAL_GSL)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_gsl.cmake)
+endif()
+
+find_package(HDF5)
+IF(NOT FOUND_HDF5)
+    MESSAGE(STATIC "HDF5 is not found. Building private copy of hdf5")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_hdf.cmake)
+    SET(HDF5_STATIC_HOME ${HDF5_INSTALL_DIR})
+ENDIF(NOT FOUND_HDF5)
+
+add_custom_command(
+    OUTPUT ${MOOSE_CORE_BUILD_DIR}/moose.bin ${MOOSE_CORE_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
+    # Pass the environment variable so local installation gets searched.
+    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
+    ${CMAKE_COMMAND} 
+        -DDEBUG:BOOL=OFF 
+        -DWITH_DOC:BOOL=${WITH_DOC}
+        -DGSL_STATIC_HOME=${GSL_INSTALL_DIR}
+        -DHDF5_STATIC_HOME=${HDF5_INSTALL_DIR}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_SKIP_RPATH=ON
+        -DVERSION=${MOOSE_VERSION}
+        ${MOOSE_SOURCE_DIRECTORY}
+    COMMAND $(MAKE) VERBOSE=1
+    # Not running neuroml test since it requires matplotlib.
+    #COMMAND ctest -E neuroml --output-on-failure
+    # Build and test, do not install here.
+    WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}
+    VERBATIM
+    )
 
 # NOTE: Install moose-python and moose-gui to differnt location.
 # Otherwise each call of make install with overwrite.
@@ -53,8 +128,13 @@ add_custom_command(
     # target to generate dependency. This target is never installed.
     OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
     # Pass the environment variable so local installation gets searched.
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
+    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
+    ${CMAKE_COMMAND} 
         -DMOOSE_VERSION=${MOOSE_VERSION}
+        -DGSL_STATIC_HOME=${GSL_INSTALL_DIR}
+        -DHDF5_STATIC_HOME=${HDF5_INSTALL_DIR}
+        -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
+        -DCMAKE_SKIP_RPATH=ON
         ${MOOSE_PYTHON_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install _moose # We only need python interface.
@@ -63,7 +143,6 @@ add_custom_command(
     VERBATIM
     )
 
-
 # NOTICE: Using .so in dependency is not a great idea since its suffix will change
 # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
 # target to generate dependency. This target is never installed.
@@ -71,6 +150,7 @@ add_custom_target(_build_moose_python ALL
     DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
     )
 add_dependencies(moose_all _build_moose_python)
+add_dependencies( _build_moose_python _moose_static_dependencies )
 
 ################################################################################
 # GUI

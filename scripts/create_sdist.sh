@@ -22,5 +22,5 @@ set -x
 set -e
 echo "Version for this realeae?"
 read VERSION
-./git-archive-all.sh  --format tar.gz moose-$VERSION.tar.gz
+./scripts/git-archive-all.sh  --prefix moose-$VERSION/ --format tar.gz moose-$VERSION.tar.gz
 
