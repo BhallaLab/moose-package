@@ -22,10 +22,5 @@ set -x
 set -e
 echo "Version for this realeae?"
 read VERSION
-(
-    cd ..
-    mkdir -p moose-$VERSION
-    rsync --progress -azv --cvs-exclude moose-package/ moose-$VERSION/
-    tar --exclude-vcs -cvfz moose-$VERSION.tar.gz moose-$VERSION
-)
+./git-archive-all.sh  --format tar.gz moose-$VERSION.tar.gz
 
