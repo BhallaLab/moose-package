@@ -5,7 +5,7 @@
 # 
 #         USAGE: ./create_sdist.sh 
 # 
-#   DESCRIPTION: 
+#   DESCRIPTION: Generate source distribution from git repo.
 # 
 #       OPTIONS: ---
 #  REQUIREMENTS: ---
@@ -18,12 +18,14 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+set -x
+set -e
 echo "Version for this realeae?"
 read VERSION
 (
     cd ..
     mkdir -p moose-$VERSION
-    rsync --progress -azv --cvs-exclude moose-all-package/ moose-$VERSION/
-    tar --exclude-vcs -cvf moose-$VERSION.tar.gz moose-$VERSION
+    rsync --progress -azv --cvs-exclude moose-package/ moose-$VERSION/
+    tar --exclude-vcs -cvfz moose-$VERSION.tar.gz moose-$VERSION
 )
 
