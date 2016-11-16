@@ -10,10 +10,9 @@ FILE(MAKE_DIRECTORY ${GSL_BUILD_DIR})
 
 # NOTE: Set WORKING_DIRECTORY to GSL_SRC_DIRECTORY else the build might fail
 # because of missing texinfo and texi2html package.
-SET(GSL_OUTPUT_BIN ${GSL_INSTALL_DIR}/bin/gsl-config)
+SET(GSL_OUTPUT_LIB ${GSL_INSTALL_DIR}/lib/libgsl.a)
 ADD_CUSTOM_COMMAND(
-    OUTPUT ${GSL_OUTPUT_BIN}
-    #COMMAND ${GSL_SRC_DIR}/configure --prefix=${GSL_INSTALL_DIR} --with-pic --enable-static --disable-shared
+    OUTPUT ${GSL_OUTPUT_LIB}
     COMMAND ${CMAKE_COMMAND} 
         -DCMAKE_INSTALL_PREFIX=${GSL_INSTALL_DIR} 
         -DCMAKE_C_FLAGS=-fPIC

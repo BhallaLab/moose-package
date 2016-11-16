@@ -172,8 +172,9 @@ if( WITH_MOOGLI )
 # Build moogli
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
     set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli)
-    SET(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_build)
-    FILE(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
+    set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_build)
+    file(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
+    file(MAKE_DIRECTORY ${MOOGLI_INSTALL_DIR} )
     add_custom_command(
         OUTPUT ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
         COMMAND ${CMAKE_COMMAND} 
@@ -213,7 +214,7 @@ install(DIRECTORY ${MOOSE_GUI_DIR}/
     COMPONENT moose-gui
     )
 
-install(DIRECTORY ${MOOSE_EXAMPLE_DIR}/
+install(DIRECTORY ${MOOSE_EXAMPLE_DIR}
     DESTINATION lib/moose/
     COMPONENT moose-gui
     PATTERN "_travis" EXCLUDE
