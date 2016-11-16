@@ -115,19 +115,6 @@ endif( WITH_MOOGLI )
 ################################################################################
 # OTHERS
 ################################################################################
-set( SOURCE_DISTRIBUTION
-    ${CMAKE_CURRENT_BINARY_DIR}/moose-${MOOSE_VERSION}.tar.gz 
-    )
-add_custom_command(
-    OUTPUT ${SOURCE_DISTRIBUTION}
-    COMMAND ${CMAKE_COMMAND} -E tar "cfvz" 
-        "${SOURCE_DISTRIBUTION}" "${CMAKE_CURRENT_SOURCE_DIR}"
-    VERBATIM
-    )
-add_custom_target(sdist 
-    DEPENDS ${SOURCE_DISTRIBUTION}
-    )
-
 
 ################################################################################
 # INSTALL 
