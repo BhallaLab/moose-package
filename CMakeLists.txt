@@ -249,3 +249,17 @@ add_test(NAME moose-core
 
 ######### CPACK ###############################################################
 include(moose_cpack.cmake)
+
+
+######################## CTEST #################################################
+enable_testing( )
+
+add_test( NAME test_moose 
+    COMMAND ${PYTHON_EXECUTABLE} -c "import moose" 
+    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages
+    )
+
+add_test( NAME test_moogli
+    COMMAND ${PYTHON_EXECUTABLE} -c "import moogli" 
+    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages
+    )
