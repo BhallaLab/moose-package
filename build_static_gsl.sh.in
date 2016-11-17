@@ -6,7 +6,8 @@ fi
 
 echo "Building local copy of GSL"
 ( 
-    cd @GSL_SOURCE_DIR@
+    mkdir -p @GSL_BUILD_DIR@
+    cd @GSL_BUILD_DIR@
     cmake -DCMAKE_INSTALL_PREFIX=@GSL_INSTALL_DIR@ \
         @CMAKE_GSL_ARGS@ .
     $MAKE

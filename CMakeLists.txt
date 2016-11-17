@@ -1,11 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
-# A dummy target to add dependencies later.
-project(moose_all)
+project(moose-all)
 
 # Since we are building package, ask user to provide the version info from
 # command line.
-option(MOOSE_VERSION "Which moose version?" OFF)
+option(MOOSE_VERSION "Which moose version?" 3.1.1)
 if(NOT MOOSE_VERSION)
     message(FATAL_ERROR 
         "You must provide version info from command line e.g. "
@@ -30,26 +29,20 @@ if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
 endif()
 
 #################
-# SUBMODULE locations.
-set(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
-set(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__build_moose_python)
-file(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
 
 ################################################################################
 # BUILD
 ################################################################################
 add_custom_target(moose_all ALL)
 
-################################################################################
-# Build dependencies 
-################################################################################
-add_custom_target(_moose_static_dependencies ALL)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_INSTALL_RPATH "")
 
-# Collect all options for moose-core/python module here.
-set(MOOSE_CORE_CMAKE_OPTIONS "")
+
+set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose)
+set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
+file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
 
 find_package(GSL 1.16)
 # If installed version of gsl is not 1.16 then download and build gsl locally.
@@ -65,81 +58,69 @@ else()
     endif()
 endif()
 
+# Create shell script to build local gsl
 if(LOCAL_GSL)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_gsl.cmake)
-    list(APPEND MOOSE_CORE_CMAKE_OPTIONS "-DGSL_STATIC_HOME=${GSL_INSTALL_DIR}")
-    list(APPEND MOOSE_CORE_CMAKE_OPTIONS "-DGSL_ROOT=${GSL_INSTALL_DIR}")
+    # CMAKE version of gsl does not play well with different build path. It
+    # needs to be built in source directory only.
+    set( GSL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/gsl )
+    set( GSL_BUILD_DIR ${GSL_SOURCE_DIR} )
+    set( GSL_INSTALL_DIR ${CMAKE_BINARY_DIR}/__gsl_install )
+    set( CMAKE_GSL_ARGS "-DCMAKE_C_FLAGS=-fPIC" )
+    configure_file( ${CMAKE_SOURCE_DIR}/build_static_gsl.sh.in 
+        ${CMAKE_BINARY_DIR}/gsl_static_gsl.sh 
+        )
+    set(GSL_ROOT_DIR ${GSL_INSTALL_DIR} )
+    add_custom_target( gsl ALL DEPENDS ${GSL_INSTALL_DIR}/bin/gsl-config )
+    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/bin/gsl-config 
+        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
+        VERBATIM
+        )
+    add_dependencies( pymoose gsl )
 endif()
 
 find_package(HDF5 COMPONENTS CXX HL)
 if(NOT HDF5_FOUND)
     MESSAGE(STATUS "HDF5 is not found. Building private copy of hdf5")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_hdf.cmake)
-    list(APPEND MOOSE_CORE_CMAKE_OPTIONS 
-        "-DHDF5_USE_STATIC_LIBRARIES=ON"
-        "-DHDF5_ROOT=${HDF5_INSTALL_DIR}" 
+    set( HDF5_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/hdf5 )
+    set( HDF5_BUILD_DIR ${CMAKE_BINARY_DIR}/__hdf5_build )
+    file(MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
+    set( HDF5_INSTALL_DIR ${CMAKE_BINARY_DIR}/__hdf5_install )
+    set( CMAKE_HDF5_ARGS "-DCMAKE_CXX_FLAGS=-fPIC" 
+        "-DHDF5_BUILD_HL_LIB=ON" "-DBUILD_SHARED_LIB=OFF"
         )
+    configure_file( ${CMAKE_SOURCE_DIR}/build_static_gsl.sh.in 
+        ${CMAKE_BINARY_DIR}/gsl_static_gsl.sh 
+        )
+    set(HDF5_ROOT ${HDF5_INSTALL_DIR} )
+    add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
+    add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
+        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf.sh 
+        VERBATIM
+        )
+    add_dependencies( pymoose hdf5 )
 endif( )
 
 message( 
     STATUS "Following options are passed down to moose-core module"
     "${MOOSE_CORE_CMAKE_OPTIONS}"
     )
-add_custom_command(
-    OUTPUT ${MOOSE_CORE_BUILD_DIR}/moose.bin ${MOOSE_CORE_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
-    # Pass the environment variable so local installation gets searched.
-    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
-    COMMAND HDF5_ROOT=${HDF5_INSTALL_DIR}
-    ${CMAKE_COMMAND} 
-        -DDEBUG:BOOL=OFF 
-        -DWITH_DOC:BOOL=${WITH_DOC}
-        # This variable will make sure that static libraries are linked 
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DCMAKE_SKIP_RPATH=ON
-        -DMOOSE_VERSION=${MOOSE_VERSION}
-        ${MOOSE_CORE_CMAKE_OPTIONS}
-        ${MOOSE_SOURCE_DIRECTORY}
-    COMMAND $(MAKE) VERBOSE=1
-    # Not running neuroml test since it requires matplotlib.
-    #COMMAND ctest -E neuroml --output-on-failure
-    # Build and test, do not install here.
-    WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}
-    VERBATIM
-    )
-
 # NOTE: Install moose-python and moose-gui to differnt location.
 # Otherwise each call of make install with overwrite.
-set(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
-file(MAKE_DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR})
-add_custom_command(
-    # Using .so in dependency is not a great idea since its suffix will change
-    # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
-    # target to generate dependency. This target is never installed.
-    OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
-    # Pass the environment variable so local installation gets searched.
-    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
-    ${CMAKE_COMMAND} 
-        -DMOOSE_VERSION=${MOOSE_VERSION}
-        -DGSL_STATIC_HOME=${GSL_INSTALL_DIR}
-        -DHDF5_STATIC_HOME=${HDF5_INSTALL_DIR}
-        -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
-        -DCMAKE_SKIP_RPATH=ON
-        ${MOOSE_PYTHON_SOURCE_DIR}
-    COMMAND $(MAKE)
-    COMMAND $(MAKE) install _moose # We only need python interface.
-    #COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
-    WORKING_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR}
-    VERBATIM
-    )
+set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
+file(MAKE_DIRECTORY ${PYMOOSE_INSTALL_DIR})
 
 # NOTICE: Using .so in dependency is not a great idea since its suffix will change
 # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
 # target to generate dependency. This target is never installed.
-add_custom_target(_build_moose_python ALL
-    DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin
+add_custom_target(pymoose ALL DEPENDS ${PYMOOSE_BUILD_DIR}/moose.bin)
+add_custom_command( OUTPUT ${PYMOOSE_BUILD_DIR}/moose.bin
+    # Pass the environment variable so local installation gets searched.
+    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
+    WORKING_DIRECTORY ${PYMOOSE_BUILD_DIR}
+    VERBATIM
     )
-add_dependencies(moose_all _build_moose_python)
-add_dependencies( _build_moose_python _moose_static_dependencies )
+
+add_dependencies(moose_all pymoose )
 
 ################################################################################
 # GUI
@@ -192,7 +173,7 @@ endif( WITH_MOOGLI )
 
 # We only want python module and not the moose components.
 INSTALL(
-    DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/lib/
+    DIRECTORY ${PYMOOSE_INSTALL_DIR}/lib/
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
     USE_SOURCE_PERMISSIONS
     PATTERN "libmoose.so" EXCLUDE
