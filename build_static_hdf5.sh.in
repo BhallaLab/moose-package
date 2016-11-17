@@ -14,7 +14,7 @@ echo "Building local copy of HDF5"
     mkdir -p @HDF5_BUILD_DIR@
     cd @HDF5_BUILD_DIR@
     cmake -DCMAKE_INSTALL_PREFIX=@HDF5_INSTALL_DIR@  \
-        -DCMAKE_CFLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC \
+        -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC \
         @CMAKE_HDF5_ARGS@ \
         @HDF5_SOURCE_DIR@ 
     $MAKE

@@ -12,6 +12,7 @@ echo "Building local copy of GSL"
     mkdir -p @GSL_BUILD_DIR@
     cd @GSL_BUILD_DIR@
     cmake -DCMAKE_INSTALL_PREFIX=@GSL_INSTALL_DIR@ \
+        -DGSL_USE_STATIC_LIBRARIES=ON \
         -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC \
         @CMAKE_GSL_ARGS@ .
     $MAKE

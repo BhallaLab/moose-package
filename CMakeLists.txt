@@ -76,7 +76,7 @@ if(NOT HDF5_FOUND)
     file(MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
     set( HDF5_INSTALL_DIR ${CMAKE_BINARY_DIR}/__hdf5_install )
     set( CMAKE_HDF5_ARGS 
-        "-DCMAKE_CXX_FLAGS=-fPIC -DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF"
+        "-DHDF5_USE_STATIC_LIBRARIES=ON -DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF"
         )
     configure_file( ${CMAKE_SOURCE_DIR}/build_static_hdf5.sh.in 
         ${CMAKE_BINARY_DIR}/build_static_hdf5.sh
