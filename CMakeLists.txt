@@ -90,8 +90,6 @@ message(
     )
 # NOTE: Install moose-python and moose-gui to differnt location.
 # Otherwise each call of make install with overwrite.
-set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install_moose_python_)
-file(MAKE_DIRECTORY ${PYMOOSE_INSTALL_DIR})
 
 # NOTICE: Using .so in dependency is not a great idea since its suffix will change
 # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
@@ -99,7 +97,7 @@ file(MAKE_DIRECTORY ${PYMOOSE_INSTALL_DIR})
 
 # NOTICE : Before we reached here, we have setup appropriate environment
 # variables for build_moose.sh to read.
-set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose)
+set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
 set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
 set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_install)
 set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
