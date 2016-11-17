@@ -11,7 +11,7 @@ if(NOT MOOSE_VERSION)
         "\n   $ cmake -DMOOSE_VERSION=3.1.1 "
         )
 endif( )
-option( WITH_MOOGLI "Build with moogli" ON)
+option(WITH_MOOGLI "Build with moogli" ON)
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -153,8 +153,8 @@ add_custom_target(moosegui ALL)
 if( WITH_MOOGLI )
 # Build moogli
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
-    set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli)
-    set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_build)
+    set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_install)
+    set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_build)
     file(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
     file(MAKE_DIRECTORY ${MOOGLI_INSTALL_DIR} )
     add_custom_command(
@@ -167,11 +167,11 @@ if( WITH_MOOGLI )
         VERBATIM
         )
 
-    add_custom_target(_build_moogli ALL
+    add_custom_target(moogli ALL
         DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
         )
 
-    add_dependencies(moose_all _build_moogli)
+    add_dependencies(moose_all moogli)
 
 endif( WITH_MOOGLI )
 
