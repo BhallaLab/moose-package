@@ -13,6 +13,7 @@ FILE(MAKE_DIRECTORY ${GSL_BUILD_DIR})
 SET(GSL_OUTPUT_LIB ${GSL_INSTALL_DIR}/lib/libgsl.a)
 ADD_CUSTOM_COMMAND(
     OUTPUT ${GSL_OUTPUT_LIB}
+    # When cmake is used, we can't build gsl-config
     COMMAND ${CMAKE_COMMAND} 
         -DCMAKE_INSTALL_PREFIX=${GSL_INSTALL_DIR} 
         -DCMAKE_C_FLAGS=-fPIC
@@ -24,9 +25,7 @@ ADD_CUSTOM_COMMAND(
     VERBATIM  # needed to handle escape characters.
     )
 
-ADD_CUSTOM_TARGET(_libgsl ALL 
-    DEPENDS ${GSL_OUTPUT_BIN}
-    )
+ADD_CUSTOM_TARGET(_libgsl ALL DEPENDS ${GSL_OUTPUT_LIB})
 
 set(GSL_INCLUDE_DIR ${GSL_INSTALL_DIR}/include)
 

@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 # A dummy target to add dependencies later.
 project(moose_all)
 
-# ALL OPTIONS 
-
 # Since we are building package, ask user to provide the version info from
 # command line.
 option(MOOSE_VERSION "Which moose version?" OFF)
@@ -14,11 +12,7 @@ if(NOT MOOSE_VERSION)
         "\n   $ cmake -DMOOSE_VERSION=3.1.1 "
         )
 endif( )
-
-option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
-option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
 option( WITH_MOOGLI "Build with moogli" ON)
-message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -33,20 +27,6 @@ if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
         "    $ cmake ..  \n"
         "===================================================================== \n"
         )
-endif()
-
-##############
-# Architecture.
-MESSAGE("++ Testing for architecture: 64 bit or 32 bit")
-if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-    MESSAGE("++ 64 bit architecture")
-    set(LIBSUFFIX "64")
-    set(PKGARCH "amd64")
-    set(RPMPKGARCH "x86_64")
-else()
-    MESSAGE("++ 32 bit architecture")
-    set(LIBSUFFIX "")
-    set(PKGARCH "i386")
 endif()
 
 #################
@@ -66,11 +46,11 @@ add_custom_target(moose_all ALL)
 add_custom_target(_moose_static_dependencies ALL)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
 set(CMAKE_BUILD_TYPE Release)
-# This is essential to remove the RPATH.
 set(CMAKE_INSTALL_RPATH "")
 
-# Which local libraries need to be built, Here we just set the
-# the flags.
+# Collect all options for moose-core/python module here.
+set(MOOSE_CORE_CMAKE_OPTIONS "")
+
 find_package(GSL 1.16)
 # If installed version of gsl is not 1.16 then download and build gsl locally.
 # THIS IS USEFULL TO BUILD MOOSE FOR VARIOUS DISTRIBUTIONS.
@@ -85,30 +65,39 @@ else()
     endif()
 endif()
 
-set(ALL_STATIC_LIBS "")
 if(LOCAL_GSL)
     include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_gsl.cmake)
+    list(APPEND MOOSE_CORE_CMAKE_OPTIONS "-DGSL_STATIC_HOME=${GSL_INSTALL_DIR}")
+    list(APPEND MOOSE_CORE_CMAKE_OPTIONS "-DGSL_ROOT=${GSL_INSTALL_DIR}")
 endif()
 
-find_package(HDF5)
-IF(NOT FOUND_HDF5)
-    MESSAGE(STATIC "HDF5 is not found. Building private copy of hdf5")
+find_package(HDF5 COMPONENTS CXX HL)
+if(NOT HDF5_FOUND)
+    MESSAGE(STATUS "HDF5 is not found. Building private copy of hdf5")
     include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_hdf.cmake)
-    SET(HDF5_STATIC_HOME ${HDF5_INSTALL_DIR})
-ENDIF(NOT FOUND_HDF5)
+    list(APPEND MOOSE_CORE_CMAKE_OPTIONS 
+        "-DHDF5_USE_STATIC_LIBRARIES=ON"
+        "-DHDF5_ROOT=${HDF5_INSTALL_DIR}" 
+        )
+endif( )
 
+message( 
+    STATUS "Following options are passed down to moose-core module"
+    "${MOOSE_CORE_CMAKE_OPTIONS}"
+    )
 add_custom_command(
     OUTPUT ${MOOSE_CORE_BUILD_DIR}/moose.bin ${MOOSE_CORE_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     # Pass the environment variable so local installation gets searched.
     COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
+    COMMAND HDF5_ROOT=${HDF5_INSTALL_DIR}
     ${CMAKE_COMMAND} 
         -DDEBUG:BOOL=OFF 
         -DWITH_DOC:BOOL=${WITH_DOC}
-        -DGSL_STATIC_HOME=${GSL_INSTALL_DIR}
-        -DHDF5_STATIC_HOME=${HDF5_INSTALL_DIR}
+        # This variable will make sure that static libraries are linked 
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_SKIP_RPATH=ON
-        -DVERSION=${MOOSE_VERSION}
+        -DMOOSE_VERSION=${MOOSE_VERSION}
+        ${MOOSE_CORE_CMAKE_OPTIONS}
         ${MOOSE_SOURCE_DIRECTORY}
     COMMAND $(MAKE) VERBOSE=1
     # Not running neuroml test since it requires matplotlib.

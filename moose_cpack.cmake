@@ -1,5 +1,20 @@
 # Packaging.
 INCLUDE(InstallRequiredSystemLibraries)
+
+##############
+# Architecture.
+MESSAGE("++ Testing for architecture: 64 bit or 32 bit")
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    MESSAGE("++ 64 bit architecture")
+    set(LIBSUFFIX "64")
+    set(PKGARCH "amd64")
+    set(RPMPKGARCH "x86_64")
+else()
+    MESSAGE("++ 32 bit architecture")
+    set(LIBSUFFIX "")
+    set(PKGARCH "i386")
+endif()
+
 SET(CPACK_SOURCE_STRIP_FILES ON)
 SET(CPACK_STRIP_FILES ON)
 

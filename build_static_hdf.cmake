@@ -32,5 +32,8 @@ ADD_CUSTOM_TARGET(_libhdf5 ALL DEPENDS ${HDF5_OUTPUT_BIN})
 
 set(HDF5_INCLUDE_DIR ${HDF5_INSTALL_DIR}/include)
 
+## Set environment variable such that other cmake processes can find it.
+set( ENV{HDF5_ROOT} ${HDF5_INSTALL_DIR} )
+
 ## Ofcourse, moose-full depends on it.
 add_dependencies(_moose_static_dependencies _libhdf5)
