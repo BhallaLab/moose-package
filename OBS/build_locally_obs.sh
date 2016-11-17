@@ -18,6 +18,8 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+set -x
+set -e
 
 VERSION=3.1.1
 if [ ! -d home:moose/moose ]; then
@@ -25,17 +27,18 @@ if [ ! -d home:moose/moose ]; then
     osc co home:moose/moose 
 fi
 
-if [ ! -f home:moose/moose/moose-${VERSION}.tar.gz ] 
-echo "Now create a tar file"
-( 
-    cd ..
-    ./scripts/create_sdist.sh ${VERSION}
-    cp moose-${VERSION} ./OBS/home:moose/moose 
-)
+if [ ! -f home:moose/moose/moose-${VERSION}.tar.gz ]; then
+    echo "Now create a tar file"
+    ( 
+        cd ..
+        ./scripts/create_sdist.sh ${VERSION}
+        cp moose-${VERSION} ./OBS/home:moose/moose 
+    )
+fi
 
 echo "Now building using OBS"
 (
     cd home:moose/moose 
-    chmod + ./build.sh
+    chmod +x ./build.sh
     ./build.sh openSUSE_13.2 
 )
