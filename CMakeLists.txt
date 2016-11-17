@@ -237,7 +237,8 @@ include(moose_cpack.cmake)
 enable_testing( )
 
 add_test( NAME test_moose 
-    COMMAND ${PYTHON_EXECUTABLE} -c "import moose" 
+    COMMAND ${PYTHON_EXECUTABLE} -c
+        "import moose; print(moose.__file__); print(moose.__version__ )" 
     )
 
 add_test( NAME test_moogli
