@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.10)
 
 project(moose-all)
 
 # Since we are building package, ask user to provide the version info from
 # command line.
-option(MOOSE_VERSION "Which moose version?" 3.1.1)
+option(MOOSE_VERSION "Which moose version?" OFF)
 if(NOT MOOSE_VERSION)
     message(FATAL_ERROR 
         "You must provide version info from command line e.g. "
@@ -40,10 +40,6 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_INSTALL_RPATH "")
 
 
-set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose)
-set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
-file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
-
 find_package(GSL 1.16)
 # If installed version of gsl is not 1.16 then download and build gsl locally.
 # THIS IS USEFULL TO BUILD MOOSE FOR VARIOUS DISTRIBUTIONS.
@@ -67,15 +63,9 @@ if(LOCAL_GSL)
     set( GSL_INSTALL_DIR ${CMAKE_BINARY_DIR}/__gsl_install )
     set( CMAKE_GSL_ARGS "-DCMAKE_C_FLAGS=-fPIC" )
     configure_file( ${CMAKE_SOURCE_DIR}/build_static_gsl.sh.in 
-        ${CMAKE_BINARY_DIR}/gsl_static_gsl.sh 
+        ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
         )
     set(GSL_ROOT_DIR ${GSL_INSTALL_DIR} )
-    add_custom_target( gsl ALL DEPENDS ${GSL_INSTALL_DIR}/bin/gsl-config )
-    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/bin/gsl-config 
-        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
-        VERBATIM
-        )
-    add_dependencies( pymoose gsl )
 endif()
 
 find_package(HDF5 COMPONENTS CXX HL)
@@ -85,19 +75,13 @@ if(NOT HDF5_FOUND)
     set( HDF5_BUILD_DIR ${CMAKE_BINARY_DIR}/__hdf5_build )
     file(MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
     set( HDF5_INSTALL_DIR ${CMAKE_BINARY_DIR}/__hdf5_install )
-    set( CMAKE_HDF5_ARGS "-DCMAKE_CXX_FLAGS=-fPIC" 
-        "-DHDF5_BUILD_HL_LIB=ON" "-DBUILD_SHARED_LIB=OFF"
+    set( CMAKE_HDF5_ARGS 
+        "-DCMAKE_CXX_FLAGS=-fPIC -DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF"
         )
-    configure_file( ${CMAKE_SOURCE_DIR}/build_static_gsl.sh.in 
-        ${CMAKE_BINARY_DIR}/gsl_static_gsl.sh 
+    configure_file( ${CMAKE_SOURCE_DIR}/build_static_hdf5.sh.in 
+        ${CMAKE_BINARY_DIR}/build_static_hdf5.sh
         )
     set(HDF5_ROOT ${HDF5_INSTALL_DIR} )
-    add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
-    add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
-        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf.sh 
-        VERBATIM
-        )
-    add_dependencies( pymoose hdf5 )
 endif( )
 
 message( 
@@ -112,13 +96,43 @@ file(MAKE_DIRECTORY ${PYMOOSE_INSTALL_DIR})
 # NOTICE: Using .so in dependency is not a great idea since its suffix will change
 # on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
 # target to generate dependency. This target is never installed.
+
+# NOTICE : Before we reached here, we have setup appropriate environment
+# variables for build_moose.sh to read.
+set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose)
+set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
+set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_install)
+set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
+
+file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
+configure_file( ${CMAKE_SOURCE_DIR}/build_moose.sh.in 
+    ${CMAKE_BINARY_DIR}/build_moose.sh 
+    )
 add_custom_target(pymoose ALL DEPENDS ${PYMOOSE_BUILD_DIR}/moose.bin)
 add_custom_command( OUTPUT ${PYMOOSE_BUILD_DIR}/moose.bin
     # Pass the environment variable so local installation gets searched.
-    COMMAND GSL_HOME=${GSL_INSTALL_DIR} 
-    WORKING_DIRECTORY ${PYMOOSE_BUILD_DIR}
+    COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_moose.sh
     VERBATIM
     )
+
+# Create dependency targets.
+if(LOCAL_GSL)
+    add_custom_target( gsl ALL DEPENDS ${GSL_INSTALL_DIR}/bin/gsl-config )
+    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/bin/gsl-config 
+        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
+        VERBATIM
+        )
+    add_dependencies( pymoose gsl )
+endif( )
+
+if( NOT HDF5_FOUND )
+    add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
+    add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
+        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf5.sh 
+        VERBATIM
+        )
+    add_dependencies( pymoose hdf )
+endif( )
 
 add_dependencies(moose_all pymoose )
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -x 
+set -e
+
 if [ -z "$MAKE" ]; then
     MAKE=make
 fi
