@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ -z "$MAKE" ]; then
+    MAKE=make
+fi
+
+echo "Building local copy of GSL"
+( 
+    cd @GSL_SOURCE_DIR@
+    cmake -DCMAKE_INSTALL_PREFIX=@GSL_INSTALL_DIR@ \
+        @CMAKE_GSL_ARGS@ .
+    $MAKE
+    $MAKE install
+)
