@@ -209,14 +209,16 @@ install(DIRECTORY ${MOOSE_EXAMPLE_DIR}
     PATTERN ".git*" EXCLUDE
     )
 
-# create the launcher.
+# create the launcher. Make sure to set MOOSE_GUI_PREFIX relative to this
+# script.
+set(MOOSE_GUI_PREFIX ..)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/moosegui.in 
-    ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+    ${CMAKE_CURRENT_BINARY_DIR}/moose
     )
 
 ## install the launchers,
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
     DESTINATION bin
     )
 

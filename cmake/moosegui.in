@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd @CMAKE_INSTALL_PREFIX@/lib/moose/gui && python mgui.py &
+cd @MOOSE_GUI_PREFIX@/lib/moose/gui && python mgui.py &
