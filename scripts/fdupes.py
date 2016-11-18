@@ -1,6 +1,6 @@
 """fdupes.py: 
 
-Removed duplicate files by creating hardlink to the first file.
+Hardlink duplicate files.
 
 """
     
@@ -41,7 +41,7 @@ def create_hardlink( files ):
         os.remove( f )
         os.link( basefile, f )
         print( '[HARDLINK] %s -> %s' % (f, basefile) )
-        print( os.stat( f ) )
+        # print( os.stat( f ) )
 
 def main( outdir ):
     global files_
@@ -63,6 +63,6 @@ if __name__ == '__main__':
         outdir = sys.argv[2]
     if os.path.isdir( outdir ):
         shutil.rmtree( outdir )
-
-    shutil.copytree( d, outdir )
+    if outdir != d:
+        shutil.copytree( d, outdir )
     main( outdir )
