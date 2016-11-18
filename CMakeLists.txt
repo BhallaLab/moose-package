@@ -140,17 +140,30 @@ endif( )
 add_dependencies(moose_all pymoose )
 
 ################################################################################
-# GUI
+# GUI and EXAMPLES
 ################################################################################
-set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
-set(MOOSE_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-examples)
-set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
-file(MAKE_DIRECTORY ${MOOSE_GUI_INSTALL_DIR})
-
 find_package(PythonInterp REQUIRED)
 
-# Target does not build anything.
-add_custom_target(moosegui ALL)
+set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
+set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
+file(MAKE_DIRECTORY ${MOOSE_GUI_INSTALL_DIR})
+add_custom_target( moosegui ALL DEPENDS ${MOOSE_GUI_INSTALL_DIR}/mgui.py)
+add_custom_command( OUTPUT ${MOOSE_GUI_INSTALL_DIR}/mgui.py
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MOOSE_GUI_DIR} ${MOOSE_GUI_INSTALL_DIR}
+    VERBATIM
+    )
+
+set(MOOSE_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-examples)
+set(MOOSE_EXAMPLE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_examples_install)
+
+add_custom_target( moose-examples ALL )
+add_custom_command( TARGET moosegui POST_BUILD
+    COMMAND CMAKE_COMMAND -E copy_directory ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    VERBATIM 
+    )
+
+add_dependencies( moose_all moosegui )
 
 ################################################################################
 # MOOGLI
@@ -196,13 +209,16 @@ INSTALL(
     PATTERN "libmoose.so" EXCLUDE
     )
 
-install(DIRECTORY ${MOOSE_GUI_DIR}/
+install(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     DESTINATION lib/moose/gui
     COMPONENT moose-gui
     )
 
-install(DIRECTORY ${MOOSE_EXAMPLE_DIR}
-    DESTINATION lib/moose/
+# Ideally once should remove duplicates from this folder, but this is useless,
+# since, since copy operation does not preserve hard-links but rather
+# create new files. Use fdupes macro in spec file.
+install(DIRECTORY ${MOOSE_EXAMPLE_INSTALL_DIR}/
+    DESTINATION lib/moose/moose-examples
     COMPONENT moose-gui
     PATTERN "_travis" EXCLUDE
     PATTERN "CVS" EXCLUDE
