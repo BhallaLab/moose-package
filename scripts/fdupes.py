@@ -39,8 +39,9 @@ def create_hardlink( files ):
     for f in files[1:]:
         # Delete this file and create a hard link to basefile.
         os.remove( f )
+        assert not os.path.exists( f )
         os.link( basefile, f )
-        print( '[HARDLINK] %s -> %s' % (f, basefile) )
+        # print( '[HARDLINK] %s -> %s' % (f, basefile) )
         # print( os.stat( f ) )
 
 def main( outdir ):
