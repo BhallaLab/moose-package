@@ -102,6 +102,11 @@ set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
 set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_install)
 set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
 
+# This option make sure that static libraries are picked up by CMAKE.
+if(LOCAL_GSL)
+    set(CMAKE_PYMOOSE_ARGS "${CMAKE_PYMOOSE_ARGS} -DGSL_USE_STATIC_LIBRARIES=ON")
+endif(LOCAL_GSL)
+
 file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
 configure_file( ${CMAKE_SOURCE_DIR}/build_moose.sh.in 
     ${CMAKE_BINARY_DIR}/build_moose.sh 
