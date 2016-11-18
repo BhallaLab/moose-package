@@ -157,10 +157,8 @@ set(MOOSE_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-examples)
 set(MOOSE_EXAMPLE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_examples_install)
 
 add_custom_target( moose-examples ALL )
-add_custom_command( TARGET moosegui 
-    POST_BUILD
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/fdupes.py 
-        ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
+add_custom_command( TARGET moosegui POST_BUILD
+    COMMAND CMAKE_COMMAND -E copy_directory ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM 
     )
@@ -216,8 +214,9 @@ install(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     COMPONENT moose-gui
     )
 
-# NOTE: Before installing, make sure duplicate files are hard-linked into one
-# file. Also leading / is important
+# Ideally once should remove duplicates from this folder, but this is useless,
+# since, since copy operation does not preserve hard-links but rather
+# create new files. Use fdupes macro in spec file.
 install(DIRECTORY ${MOOSE_EXAMPLE_INSTALL_DIR}/
     DESTINATION lib/moose/moose-examples
     COMPONENT moose-gui
