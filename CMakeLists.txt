@@ -217,9 +217,9 @@ install(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     )
 
 # NOTE: Before installing, make sure duplicate files are hard-linked into one
-# file.
-install(DIRECTORY ${MOOSE_EXAMPLE_INSTALL_DIR}
-    DESTINATION lib/moose/
+# file. Also leading / is important
+install(DIRECTORY ${MOOSE_EXAMPLE_INSTALL_DIR}/
+    DESTINATION lib/moose/moose-examples
     COMPONENT moose-gui
     PATTERN "_travis" EXCLUDE
     PATTERN "CVS" EXCLUDE
