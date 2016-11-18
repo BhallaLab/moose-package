@@ -158,7 +158,7 @@ set(MOOSE_EXAMPLE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_examples_install)
 
 add_custom_target( moose-examples ALL )
 add_custom_command( TARGET moosegui POST_BUILD
-    COMMAND CMAKE_COMMAND -E copy_directory ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM 
     )
