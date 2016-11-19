@@ -54,6 +54,11 @@ else()
     endif()
 endif()
 
+# This variable keep additional arguments I need to pass to pymoose cmake
+# command. Its value is used to determine if we should link with shared or
+# static version of HDF5 libraries.
+set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
+
 # Create shell script to build local gsl
 if(LOCAL_GSL)
     # CMAKE version of gsl does not play well with different build path. It
@@ -76,6 +81,9 @@ if ( NOT HDF5_FOUND )
     file( MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
     set( HDF5_INSTALL_DIR ${CMAKE_BINARY_DIR}/__hdf5_install )
     set( CMAKE_HDF5_ARGS "-DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF" )
+    # NOTE: Before writing script, we must set this option if static libraries
+    # are to be used.
+    set( CMAKE_PYMOOSE_ARGS "${CMAKE_PYMOOSE_ARGS} -DHDF5_USE_STATIC_LIBRARIES=ON" )
     configure_file( ${CMAKE_SOURCE_DIR}/build_static_hdf5.sh.in 
         ${CMAKE_BINARY_DIR}/build_static_hdf5.sh
         )
@@ -98,7 +106,6 @@ message(
 set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
 set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
 set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_install)
-set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
 
 # This option make sure that static libraries are picked up by CMAKE.
 if(LOCAL_GSL)
