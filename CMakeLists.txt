@@ -39,7 +39,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_INSTALL_RPATH "")
 
-
 find_package(GSL 1.16)
 # If installed version of gsl is not 1.16 then download and build gsl locally.
 # THIS IS USEFULL TO BUILD MOOSE FOR VARIOUS DISTRIBUTIONS.
@@ -53,6 +52,7 @@ else()
         SET(LOCAL_GSL 1)
     endif()
 endif()
+
 
 # This variable keep additional arguments I need to pass to pymoose cmake
 # command. Its value is used to determine if we should link with shared or
@@ -90,38 +90,16 @@ if ( NOT HDF5_FOUND )
     set(HDF5_ROOT ${HDF5_INSTALL_DIR} )
 endif ( )
 
-message( 
-    STATUS "Following options are passed down to moose-core module"
-    "${MOOSE_CORE_CMAKE_OPTIONS}"
-    )
-# NOTE: Install moose-python and moose-gui to differnt location.
-# Otherwise each call of make install with overwrite.
-
-# NOTICE: Using .so in dependency is not a great idea since its suffix will change
-# on different platforms e.g. dynlib on OSX etc. Therefore using moose.bin
-# target to generate dependency. This target is never installed.
-
-# NOTICE : Before we reached here, we have setup appropriate environment
-# variables for build_moose.sh to read.
-set(PYMOOSE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-core)
-set(PYMOOSE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_build)
-set(PYMOOSE_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__pymoose_install)
-
 # This option make sure that static libraries are picked up by CMAKE.
 if(LOCAL_GSL)
     set(CMAKE_PYMOOSE_ARGS "${CMAKE_PYMOOSE_ARGS} -DGSL_USE_STATIC_LIBRARIES=ON")
 endif(LOCAL_GSL)
 
-file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
-configure_file( ${CMAKE_SOURCE_DIR}/build_moose.sh.in 
-    ${CMAKE_BINARY_DIR}/build_moose.sh 
-    )
-add_custom_target(pymoose ALL DEPENDS ${PYMOOSE_BUILD_DIR}/moose.bin)
-add_custom_command( OUTPUT ${PYMOOSE_BUILD_DIR}/moose.bin
-    # Pass the environment variable so local installation gets searched.
-    COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_moose.sh
-    VERBATIM
-    )
+## NOW setup MOOSE project.
+set(MOOSE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/moose )
+set(MOOSE_BUILD_DIR ${CMAKE_BINARY_DIR}/__moose_build)
+set(MOOSE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_install)
+add_custom_target(moose ALL DEPENDS ${MOOSE_INSTALL_DIR}/bin/moose.bin )
 
 # Create dependency targets.
 if(LOCAL_GSL)
@@ -130,45 +108,34 @@ if(LOCAL_GSL)
         COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
         VERBATIM
         )
-    add_dependencies( pymoose gsl )
-endif( )
+    add_dependencies( moose gsl )
+endif(LOCAL_GSL)
 
-if( NOT HDF5_FOUND )
+if(NOT HDF5_FOUND)
     add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
     add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
         COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf5.sh 
         VERBATIM
         )
-    add_dependencies( pymoose hdf )
-endif( )
+    add_dependencies( moose hdf )
+endif(NOT HDF5_FOUND)
 
-add_dependencies(moose_all pymoose )
-
-################################################################################
-# GUI and EXAMPLES
-################################################################################
-find_package(PythonInterp REQUIRED)
-
-set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-gui)
-set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
-file(MAKE_DIRECTORY ${MOOSE_GUI_INSTALL_DIR})
-add_custom_target( moosegui ALL DEPENDS ${MOOSE_GUI_INSTALL_DIR}/mgui.py)
-add_custom_command( OUTPUT ${MOOSE_GUI_INSTALL_DIR}/mgui.py
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MOOSE_GUI_DIR} ${MOOSE_GUI_INSTALL_DIR}
-    VERBATIM
-    )
-
-set(MOOSE_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose/moose-examples)
-set(MOOSE_EXAMPLE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_examples_install)
-
-add_custom_target( moose-examples ALL )
-add_custom_command( TARGET moosegui POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MOOSE_EXAMPLE_DIR} ${MOOSE_EXAMPLE_INSTALL_DIR}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+# Once dependencies are built, build moose project.
+file(MAKE_DIRECTORY ${MOOSE_BUILD_DIR})
+add_custom_command( OUTPUT ${MOOSE_INSTALL_DIR}/bin/moose.bin 
+    COMMAND ${CMAKE_COMMAND} 
+            -DHDF5_ROOT=${HDF5_INSTALL_DIR}
+            -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
+            -DCMAKE_PYMOOSE_ARGS="${CMAKE_PYMOOSE_ARGS}"
+            -DCMAKE_INSTALL_PREFIX=${MOOSE_INSTALL_DIR}
+        ${MOOSE_SOURCE_DIR}
+    COMMAND $(MAKE)
+    COMMAND $(MAKE) install
+    WORKING_DIRECTORY ${MOOSE_BUILD_DIR}
     VERBATIM 
     )
 
-add_dependencies( moose_all moosegui )
+add_dependencies(moose_all moose )
 
 ################################################################################
 # MOOGLI
@@ -207,41 +174,14 @@ endif( WITH_MOOGLI )
 ################################################################################
 
 # We only want python module and not the moose components.
-INSTALL(
-    DIRECTORY ${PYMOOSE_INSTALL_DIR}/lib/
+INSTALL( DIRECTORY ${MOOSE_INSTALL_DIR}/lib/
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
     USE_SOURCE_PERMISSIONS
     PATTERN "libmoose.so" EXCLUDE
     )
 
-install(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
-    DESTINATION lib/moose/gui
-    COMPONENT moose-gui
-    )
-
-# Ideally once should remove duplicates from this folder, but this is useless,
-# since, since copy operation does not preserve hard-links but rather
-# create new files. Use fdupes macro in spec file.
-install(DIRECTORY ${MOOSE_EXAMPLE_INSTALL_DIR}/
-    DESTINATION lib/moose/moose-examples
-    COMPONENT moose-gui
-    PATTERN "_travis" EXCLUDE
-    PATTERN "CVS" EXCLUDE
-    PATTERN ".git*" EXCLUDE
-    )
-
-# create the launcher. Make sure to set MOOSE_GUI_PREFIX relative to this
-# script.
-set(MOOSE_GUI_PREFIX ..)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/moosegui.in 
-    ${CMAKE_CURRENT_BINARY_DIR}/moose
-    )
-
 ## install the launchers,
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
-    DESTINATION bin
-    )
+install(PROGRAMS ${MOOSE_INSTALL_DIR}/bin/moose DESTINATION bin)
 
 if( WITH_MOOGLI )
     INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}/
@@ -263,7 +203,6 @@ include(moose_cpack.cmake)
 
 ######################## CTEST #################################################
 enable_testing( )
-
 add_test( NAME test_moose 
     COMMAND ${PYTHON_EXECUTABLE} -c
         "import moose; print(moose.__file__); print(moose.__version__ )" 
