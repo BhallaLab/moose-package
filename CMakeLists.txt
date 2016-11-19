@@ -69,20 +69,18 @@ if(LOCAL_GSL)
 endif()
 
 find_package(HDF5 COMPONENTS CXX HL)
-if(NOT HDF5_FOUND)
-    MESSAGE(STATUS "HDF5 is not found. Building private copy of hdf5")
+if ( NOT HDF5_FOUND )
+    MESSAGE( STATUS "HDF5 is not found. Building private copy of hdf5")
     set( HDF5_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/hdf5 )
     set( HDF5_BUILD_DIR ${CMAKE_BINARY_DIR}/__hdf5_build )
-    file(MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
+    file( MAKE_DIRECTORY ${HDF5_BUILD_DIR} )
     set( HDF5_INSTALL_DIR ${CMAKE_BINARY_DIR}/__hdf5_install )
-    set( CMAKE_HDF5_ARGS 
-        "-DHDF5_USE_STATIC_LIBRARIES=ON -DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF"
-        )
+    set( CMAKE_HDF5_ARGS "-DHDF5_BUILD_HL_LIB=ON -DBUILD_SHARED_LIB=OFF" )
     configure_file( ${CMAKE_SOURCE_DIR}/build_static_hdf5.sh.in 
         ${CMAKE_BINARY_DIR}/build_static_hdf5.sh
         )
     set(HDF5_ROOT ${HDF5_INSTALL_DIR} )
-endif( )
+endif ( )
 
 message( 
     STATUS "Following options are passed down to moose-core module"
