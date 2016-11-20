@@ -38,8 +38,3 @@ script:
     - ## CMAKE based flow
     - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.1.1 -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make && ctest --output-on-failure
-    - cd .. # Now with boost.
-    - mkdir -p _BOOST_BUILD && cd _BOOST_BUILD && cmake -DMOOSE_VERSION=3.1.1 -DWITH_BOOST=ON -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
-    - make && ctest --output-on-failure
-    - cd .. 
-    - echo "All done. Phew"
