@@ -1,12 +1,11 @@
 class Moose < Formula
   desc "Multiscale Object Oriented Simulation Environment"
   homepage "http://moose.ncbs.res.in"
-  url "https://github.com/BhallaLab/moose-core/archive/master.tar.gz"
+  url "https://github.com/BhallaLab/moose-core/archive/3.1.1.tar.gz"
   version "3.1.1"
-  # sha256 "e43d2609425e17e7426955ade60b6b81a699bbe1173ad6af10f09be43fd533eb"
+  sha256 "d47f9784dcce364e961dfdf0a16b3f73f732e97dad95bf785c5412c9ddc12ebda"
 
-  option "with-gui", "Enable gui support"
-  option "with-sbml", "Enable sbml support"
+  option "with-gui", "Enable GUI"
   option "with-moogli", "Enable moogli 3d visualizer"
 
   depends_on "cmake" => :build
@@ -20,6 +19,10 @@ class Moose < Formula
 
   if build.with?("moogli")
     depends_on "openscenegraph"
+    resource "moogli" do
+      url "https://github.com/BhallaLab/moogli/archive/0.5.1.tar.gz"
+      sha256 "8a0cc0652d3c468d8d88ed77bc0b05233f62613e3e0509f4ab4c0e8bd53c39c7"
+    end
   end
 
   if build.with?("gui")
@@ -27,15 +30,16 @@ class Moose < Formula
     depends_on "homebrew/python/matplotlib"
 
     resource "gui" do
-      url "https://github.com/BhallaLab/moose-gui/archive/master.tar.gz"
-      # sha256 "d54cfd70759fba0b2f67d5aedfb76967f646e40ff305f7ace8631d3aeabc6459"
+      url "https://github.com/BhallaLab/moose-gui/archive/3.1.1.tar.gz"
+      sha256 "43e0b65b9482bbdc21a59573a93d40e237adea073a442c38bf7b8767a5c1aec8"
     end
 
     resource "examples" do
-      url "https://github.com/BhallaLab/moose-examples/archive/master.tar.gz"
-      # sha256 "09c83f6cdc0bab1a6c2eddb919edb33e3809272db3642ea284f6a102b144861d"
+      url "https://github.com/BhallaLab/moose-examples/archive/3.1.1.tar.gz"
+      sha256 "eb36d0b71e43be943b1fcf4d830e2c98ee52643d254af5989923901441d765bb"
     end
   end
+
 
   def install
     args = std_cmake_args
@@ -68,7 +72,7 @@ class Moose < Formula
     You need to install `networkx` and 'pygraphviz' using python-pip. Open terminal
     and execute following command:
 
-    $ pip install networkx
+    $ pip install networkx pygraphviz
     EOS
   end
 
