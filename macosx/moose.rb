@@ -3,7 +3,7 @@ class Moose < Formula
   homepage "http://moose.ncbs.res.in"
   url "https://github.com/BhallaLab/moose-core/archive/3.1.1.tar.gz"
   version "3.1.1"
-  sha256 "55cd1defa8815db605b3c3ee8f0eb1f683b1155f0725346d4ae21fd8b5269d33"
+  #sha256 "7879b5b5cc84353b4923bf10028f0f89ea50eb380f8863d5161cecc112e0c7bc"
 
   option "with-gui", "Enable GUI"
   option "with-moogli", "Enable moogli 3d visualizer"
@@ -19,7 +19,7 @@ class Moose < Formula
 
   if build.with?("moogli")
     depends_on "openscenegraph"
-    resource "moogli" do
+    resource("moogli") do
       url "https://github.com/BhallaLab/moogli/archive/0.5.1.tar.gz"
       sha256 "8a0cc0652d3c468d8d88ed77bc0b05233f62613e3e0509f4ab4c0e8bd53c39c7"
     end
@@ -50,7 +50,7 @@ class Moose < Formula
       system "ctest", "--output-on-failure"
     end
 
-    Dir.chdir("python") do
+    Dir.chdir("_build/python") do
       system "python", *Language::Python.setup_install_args(prefix)
     end
 
@@ -59,12 +59,21 @@ class Moose < Formula
       doc.install resource("examples")
 
       # A wrapper script to launch moose gui.
-      (bin/"moosegui").write <<-EOS.undent
+      (bin/"moose").write <<-EOS.undent
         #!/bin/bash
         BASEDIR="#{libexec}"
         (cd $BASEDIR && python mgui.py)
       EOS
-      chmod 0755, bin/"moosegui"
+      chmod 0755, bin/"moose"
+    end
+
+    if build.with?("moogli")
+      resource("moogli") do
+        mkdir "_build" do 
+          system "cmake", ".."
+          system "make"
+        end 
+      end
     end
   end
 
