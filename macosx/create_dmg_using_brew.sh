@@ -21,7 +21,7 @@ export HOMEBREW_BUILD_FROM_SOURCE=YES
 #CFLAGS+=-march=native
 
 APPNAME="Moose"
-VERSION="3.0.2"
+VERSION="3.1.1"
 MAC_NAME=`sw_vers -productVersion`
 PKGNAME="${APPNAME}_${VERSION}"
 
@@ -80,12 +80,13 @@ export PATH=${BREW_PREFIX}/bin:$PATH
     fi
 
     echo "Copying moose.rb and moogli.rb"
-    cp $CURRDIR/*.rb $BREW_PREFIX/Library/Formula/
+    rsync -azv --progress $CURRDIR/*.rb $BREW_PREFIX/Library/Formula/
 
     # This even works without python.
     ## NOTE: DO NOT install matplotlib using brew unless also installing python
     ## using brew. Since we are going to uninstall later, use pip to install
     ## matplotlib and numpy.
+    $BREW update
     $BREW -v install homebrew/python/matplotlib --with-pyqt
     $BREW -v install homebrew/python/numpy
     $BREW link --overwrite matplotlib
@@ -97,13 +98,9 @@ export PATH=${BREW_PREFIX}/bin:$PATH
     export QT_HOME=$BREW_PREFIX
     export OSG_HOME=$BREW_PREFIX 
     export PYQT_HOME=$BREW_PREFIX
-    $BREW -v install moogli | tee "$CURRDIR/__brew_moogli__log__" 
-    # Lets not depends on system level libraries. Install all dependencies.
     set +e
-    $BREW_PREFIX/bin/pip uninstall suds-jurko  -y
     $BREW_PREFIX/bin/pip uninstall networkx -y
     set -e
-    $BREW_PREFIX/bin/pip install suds-jurko  --upgrade 
     $BREW_PREFIX/bin/pip install networkx  --upgrade
 
     ## Tests
@@ -121,7 +118,7 @@ export PATH=${BREW_PREFIX}/bin:$PATH
     # Also write script to launch the moosegui.
     MOOSEPATH=${BREW_PREFIX}/lib/python2.7/site-packages
     echo "Writing launcher script"
-    cat > $BREW_PREFIX/moosegui <<EOF
+    cat > $BREW_PREFIX/moose <<EOF
 #!/bin/bash
 touch \$HOME/.bash_profile
 source \$HOME/.bash_profile
@@ -135,9 +132,9 @@ else
 fi
 # make sure that for current runtime, we have correct path.
 export PYTHONPATH=${MOOSEPATH}:\$PYTHONPATH
-exec ${BREW_PREFIX}/bin/moosegui
+exec ${BREW_PREFIX}/bin/moose
 EOF
-    chmod a+x $BREW_PREFIX/moosegui
+    chmod a+x $BREW_PREFIX/moose
 )
 
 ################ INSTALL THE ICON ########################################

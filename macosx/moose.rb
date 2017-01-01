@@ -3,7 +3,7 @@ class Moose < Formula
   homepage "http://moose.ncbs.res.in"
   url "https://github.com/BhallaLab/moose-core/archive/3.1.1.tar.gz"
   version "3.1.1"
-  sha256 "d47f9784dcce364e961dfdf0a16b3f73f732e97dad95bf785c5412c9ddc12ebda"
+  sha256 "55cd1defa8815db605b3c3ee8f0eb1f683b1155f0725346d4ae21fd8b5269d33"
 
   option "with-gui", "Enable GUI"
   option "with-moogli", "Enable moogli 3d visualizer"
