@@ -26,10 +26,10 @@ before_script:
     - sudo apt-get install -qq make cmake
     - sudo apt-get install -qq python-numpy python-matplotlib python-networkx
     - sudo apt-get install -qq libboost-all-dev
-    - sudo apt-get install -qq libgsl0-dev
+    - sudo apt-get install -qq libgsl0-dev libqt4-dev python-sip python-qt4
     - sudo apt-get install -qq python-pip
     - sudo apt-get install -qq libgraphviz-dev
-    - sudo apt-get install -qq python-numpy
+    - sudo apt-get install -qq python-numpy python-matplotlib
 
 install:
     - echo "nothing to do here"
