@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(moogli)
 SET(CMAKE_POLICY CMP0017 ON)
 
+# NOTE: The main cmake file is in ./moogli folder. This script is a top-level
+# script to call ./moogli/CMakeLists.txt with proper environment variables set.
 
 # A phony target to setup correct depedencies. This is always out-of-date.
 add_custom_target(_moogli_all ALL)
@@ -26,6 +28,8 @@ IF(OSG_LOCAL)
     include(build_static_osg.cmake)
 ENDIF(OSG_LOCAL)
 
+FIND_PACKAGE(PythonInterp REQUIRED)
+
 # Now build MOOGLI. Don't use external project here. There is no simple way to
 # honour environment variable in ExternalProject. 
 set(MOOGLI_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_)
@@ -34,6 +38,7 @@ add_custom_command(
     OUTPUT ${MOOGLI_SRC_DIR}/core/_moogli.so
     COMMAND OSGDIR=${OSG_INSTALL_DIR}
         ${CMAKE_COMMAND} -DBUILD_STATIC=${BUILD_STATIC} 
+        -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
         ${MOOGLI_SRC_DIR}
     COMMAND $(MAKE) VERBOSE=1
     WORKING_DIRECTORY ${MOOGLI_BUILD_DIR}
@@ -43,7 +48,6 @@ add_dependencies(_moogli_all _build_moogli)
 
 
 # Install using python setup.py
-FIND_PACKAGE(PythonInterp REQUIRED)
 SET(INSTALL_OPTIONS "")
 install(CODE
     "EXECUTE_PROCESS(
