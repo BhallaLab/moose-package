@@ -32,7 +32,7 @@ if [ ! -f home:moose/moose/moose-${VERSION}.tar.gz ]; then
     ( 
         cd ..
         ./scripts/create_sdist.sh ${VERSION}
-        cp moose-${VERSION} ./OBS/home:moose/moose 
+        cp moose-${VERSION}.tar.gz ./OBS/home:moose/moose 
     )
 fi
 
