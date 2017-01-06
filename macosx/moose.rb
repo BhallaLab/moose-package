@@ -1,12 +1,11 @@
 class Moose < Formula
   desc "Multiscale Object Oriented Simulation Environment"
   homepage "http://moose.ncbs.res.in"
-  url "https://github.com/BhallaLab/moose-core/archive/chamcham.tar.gz"
-  version "3.1.1"
-  #sha256 "7879b5b5cc84353b4923bf10028f0f89ea50eb380f8863d5161cecc112e0c7bc"
+  url "https://github.com/BhallaLab/moose-core/archive/3.1.1-beta.1.tar.gz"
+  version "3.1.1-beta.1"
+  sha256 "47a87460db41b4ef9d3f633097358d01c2de5850323d6c561f1231a9c42539a4"
 
-  option "with-gui", "Enable GUI"
-  option "with-moogli", "Enable moogli 3d visualizer"
+  option "with-examples", "Install examples and snippets"
 
   depends_on "cmake" => :build
   depends_on "numpy" => :build
@@ -17,35 +16,18 @@ class Moose < Formula
 
   depends_on "python" if MacOS.version <= :snow_leopard
 
-  if build.with?("moogli")
-    depends_on "openscenegraph"
-    resource("moogli") do
-      url "https://github.com/BhallaLab/moogli/archive/0.5.1.tar.gz"
-      sha256 "8a0cc0652d3c468d8d88ed77bc0b05233f62613e3e0509f4ab4c0e8bd53c39c7"
-    end
-  end
-
-  if build.with?("gui")
-    depends_on "pyqt"
-    depends_on "homebrew/python/matplotlib"
-
-    resource "gui" do
-      url "https://github.com/BhallaLab/moose-gui/archive/3.1.1.tar.gz"
-      sha256 "43e0b65b9482bbdc21a59573a93d40e237adea073a442c38bf7b8767a5c1aec8"
-    end
-
+  if build.with?("examples")
     resource "examples" do
       url "https://github.com/BhallaLab/moose-examples/archive/3.1.1.tar.gz"
       sha256 "eb36d0b71e43be943b1fcf4d830e2c98ee52643d254af5989923901441d765bb"
     end
   end
 
-
   def install
     args = std_cmake_args
-    args << "-DCMAKE_SKIP_RPATH=ON"
+    args << "-DCMAKE_SKIP_RPATH=ON" << "-D_MOOSE_VERSION=3.1.1-beta.1"
     mkdir "_build" do
-      system "cmake", "..", *args
+      system "cmake", '..', *args
       system "make"
       system "ctest", "--output-on-failure"
     end
@@ -54,26 +36,8 @@ class Moose < Formula
       system "python", *Language::Python.setup_install_args(prefix)
     end
 
-    if build.with?("gui")
-      libexec.install resource("gui")
+    if build.with?("examples")
       doc.install resource("examples")
-
-      # A wrapper script to launch moose gui.
-      (bin/"moose").write <<-EOS.undent
-        #!/bin/bash
-        BASEDIR="#{libexec}"
-        (cd $BASEDIR && python mgui.py)
-      EOS
-      chmod 0755, bin/"moose"
-    end
-
-    if build.with?("moogli")
-      resource("moogli") do
-        mkdir "_build" do 
-          system "cmake", ".."
-          system "make"
-        end 
-      end
     end
   end
 
