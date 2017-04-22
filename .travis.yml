@@ -1,3 +1,4 @@
+dist: trusty
 sudo: required
 language: cpp
 compiler:
@@ -22,7 +23,7 @@ cache: apt
 
 before_script:
     - sudo apt-get install -qq libxml2-dev libbz2-dev
-    - sudo apt-get install -qq libhdf5-serial-dev
+    - sudo apt-get install -qq libhdf5-serial-dev libgsl0-dev
     - sudo apt-get install -qq make cmake
     - sudo apt-get install -qq python-numpy python-matplotlib python-networkx
     - sudo apt-get install -qq libboost-all-dev
@@ -37,5 +38,6 @@ install:
 
 script:
     - ## CMAKE based flow
-    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.1.1 -DDEBUG=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
+    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.2 \
+        -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make && ctest --output-on-failure
