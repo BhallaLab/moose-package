@@ -4,11 +4,11 @@ project(moose-all)
 
 # Since we are building package, ask user to provide the version info from
 # command line.
-option(MOOSE_VERSION "Which moose version?" OFF)
-if(NOT MOOSE_VERSION)
+set(_MOOSE_VERSION 3.1.2)
+if(NOT _MOOSE_VERSION)
     message(FATAL_ERROR 
         "You must provide version info from command line e.g. "
-        "\n   $ cmake -DMOOSE_VERSION=3.1.1 "
+        "\n   $ cmake -D_MOOSE_VERSION=3.1.1 "
         )
 endif( )
 option(WITH_MOOGLI "Build with moogli" ON)
@@ -57,7 +57,7 @@ endif()
 # This variable keep additional arguments I need to pass to pymoose cmake
 # command. Its value is used to determine if we should link with shared or
 # static version of HDF5 libraries.
-set(CMAKE_PYMOOSE_ARGS "-DMOOSE_VERSION=${MOOSE_VERSION}" )
+set(CMAKE_PYMOOSE_ARGS "-D_MOOSE_VERSION=${_MOOSE_VERSION}" )
 
 # Create shell script to build local gsl
 if(LOCAL_GSL)
