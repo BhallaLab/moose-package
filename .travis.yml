@@ -1,3 +1,4 @@
+dist : trusty
 sudo: required
 language: cpp
 compiler:
@@ -5,6 +6,7 @@ compiler:
     - clang
 os:
     - linux
+
 notifications:
     email:
         recipients:
@@ -30,6 +32,7 @@ before_script:
     - sudo apt-get install -qq python-qt4-dev
     - sudo apt-get install -qq python-pip
     - sudo apt-get install -qq libgraphviz-dev
+    - sudo apt-get install -qq libopenscenegraph-dev
     - sudo apt-get install -qq python-numpy python-matplotlib
 
 install:
