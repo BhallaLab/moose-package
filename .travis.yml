@@ -40,6 +40,7 @@ install:
 
 script:
     - ## CMAKE based flow
+    - export PATH=/usr/bin:$PATH
     - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.2 \
         -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make -j4 && ctest --output-on-failure
