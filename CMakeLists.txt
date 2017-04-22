@@ -122,7 +122,8 @@ endif(NOT HDF5_FOUND)
 
 # Once dependencies are built, build moose project.
 file(MAKE_DIRECTORY ${MOOSE_BUILD_DIR})
-add_custom_command( OUTPUT ${MOOSE_INSTALL_DIR}/bin/moose.bin 
+add_custom_command( 
+    OUTPUT ${MOOSE_INSTALL_DIR}/bin/moose.bin 
     COMMAND ${CMAKE_COMMAND} 
             -DHDF5_ROOT=${HDF5_INSTALL_DIR}
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
