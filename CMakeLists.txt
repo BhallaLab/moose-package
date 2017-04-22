@@ -5,7 +5,6 @@ project(moose-all)
 # Since we are building package, ask user to provide the version info from
 # command line.
 set(_MOOSE_VERSION 3.1.2)
-if(NOT _MOOSE_VERSION)
     message(FATAL_ERROR 
         "You must provide version info from command line e.g. "
         "\n   $ cmake -D_MOOSE_VERSION=3.1.1 "
