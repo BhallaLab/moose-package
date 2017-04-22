@@ -40,4 +40,4 @@ script:
     - ## CMAKE based flow
     - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.2 \
         -DPYTHON_EXECUTABLE=/usr/bin/python ..
-    - make && ctest --output-on-failure
+    - make -j4 && ctest --output-on-failure
