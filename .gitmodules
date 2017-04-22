@@ -14,7 +14,3 @@
 	path = external/gsl
 	url = https://github.com/BhallaLab/gsl
         ignore = dirty
-[submodule "moose-examples"]
-        ignore = dirty
-	path = moose-examples
-	url = https://github.com/BhallaLab/moose-examples
