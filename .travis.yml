@@ -41,7 +41,7 @@ install:
 script:
     - ## CMAKE based flow
     - export PATH=/usr/bin:$PATH
-    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DMOOSE_VERSION=3.1.2 \
+    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DCMAKE_INSTALL_PREFIX=/usr \
         -DPYTHON_EXECUTABLE=/usr/bin/python ..
     - make -j4 && ctest --output-on-failure
     - sudo make install
