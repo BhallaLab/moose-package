@@ -1,6 +1,7 @@
 dist : trusty
 sudo: required
 group : edge 
+
 language: cpp
 
 compiler:
@@ -43,9 +44,9 @@ install:
 script:
     - ## CMAKE based flow
     - export PATH=/usr/bin:$PATH
-    - mkdir -p _GSL_BUILD && cd _GSL_BUILD && cmake -DCMAKE_INSTALL_PREFIX=/usr \
-        -DPYTHON_EXECUTABLE=/usr/bin/python ..
-    - make -j4 && ctest --output-on-failure
+    - mkdir -p _BUILD && cd _BUILD && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    - make -j4
+    - ctest --output-on-failure
     - sudo make install
-    - /usr/bin/python -c 'import moose'
-    - /usr/bin/python -c 'import moogli'
+    - python -c 'import moose'
+    - python -c 'import moogli'
