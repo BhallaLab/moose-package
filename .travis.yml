@@ -49,5 +49,5 @@ script:
     - ctest --output-on-failure
     - sudo make install
     - which python
-    - python -c 'import moose'
-    - python -c 'import moogli'
+    - PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moose'
+    - PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moogli'
