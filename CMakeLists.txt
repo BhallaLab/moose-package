@@ -197,9 +197,12 @@ include(moose_cpack.cmake)
 
 ######################## CTEST #################################################
 enable_testing( )
+
+find_package( PythonInterp REQUIRED )
+
 add_test( NAME test_moose 
     COMMAND ${PYTHON_EXECUTABLE} -c
-        "import moose; print(moose.__file__); print(moose.__version__ )" 
+    "import moose; print(moose.__file__); print(moose.version( ))" 
     )
 
 add_test( NAME test_moogli
