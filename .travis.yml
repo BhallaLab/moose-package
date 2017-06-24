@@ -48,5 +48,6 @@ script:
     - make -j4
     - ctest --output-on-failure
     - sudo make install
+    - which python
     - python -c 'import moose'
     - python -c 'import moogli'
