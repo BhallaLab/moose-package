@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(moose-all)
-set(MOOSE_VERSION 3.1.3)
+cmake_policy( SET CMP0048 OLD )
 
+option(_VERSION "Moose VERSION" 3.1.3)
 option(WITH_MOOGLI "Build with moogli" ON)
 
 # CMAKE related option.
@@ -121,7 +121,7 @@ add_custom_command(
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
             -DCMAKE_PYMOOSE_ARGS=${CMAKE_PYMOOSE_ARGS}
             -DCMAKE_INSTALL_PREFIX=${MOOSE_INSTALL_DIR}
-            -DMOOSE_VERSION=${MOOSE_VERSION}
+            -DMOOSE_VERSION=${_VERSION}
         ${MOOSE_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
