@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(moose-all)
-cmake_policy( SET CMP0048 OLD )
+
+if(POLICY CMP0048)
+    cmake_policy( SET CMP0048 OLD )
+endif(POLICY CMP0048)
 
 option(_VERSION "Moose VERSION" 3.1.3)
 option(WITH_MOOGLI "Build with moogli" ON)
