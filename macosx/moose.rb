@@ -25,7 +25,7 @@ class Moose < Formula
 
   def install
     args = std_cmake_args
-    args << "-DCMAKE_SKIP_RPATH=ON" << "-D_MOOSE_VERSION=3.1.1-beta.1"
+    args << "-DCMAKE_SKIP_RPATH=ON" << "-D_VERSION_MOOSE=3.1.1-beta.1"
     mkdir "_build" do
       system "cmake", '..', *args
       system "make"
