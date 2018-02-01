@@ -5,8 +5,8 @@ if(POLICY CMP0048)
     cmake_policy( SET CMP0048 OLD )
 endif(POLICY CMP0048)
 
-option(_VERSION "Moose VERSION" 3.1.3)
-option(WITH_MOOGLI "Build with moogli" ON)
+set(WITH_MOOGLI ON)
+set(VERSION_MOOSE 3.1.3)
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -124,7 +124,7 @@ add_custom_command(
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
             -DCMAKE_PYMOOSE_ARGS=${CMAKE_PYMOOSE_ARGS}
             -DCMAKE_INSTALL_PREFIX=${MOOSE_INSTALL_DIR}
-            -DVERSION_MOOSE=${_VERSION}
+            -DVERSION_MOOSE=${VERSION_MOOSE}
         ${MOOSE_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
