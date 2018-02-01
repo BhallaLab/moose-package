@@ -47,5 +47,5 @@ script:
     - which python
     - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moose'
     - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moogli'
-    - python -c 'import moose'
-    - python -c 'import moogli'
+    - python -v -c 'import moose' || echo "Failed to import moose"
+    - python -v -c 'import moogli' || echo "Failed to import moogli"
