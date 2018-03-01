@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+
 project(moose-all)
 
 if(POLICY CMP0048)
@@ -124,7 +125,7 @@ add_custom_command(
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
             -DCMAKE_PYMOOSE_ARGS=${CMAKE_PYMOOSE_ARGS}
             -DCMAKE_INSTALL_PREFIX=${MOOSE_INSTALL_DIR}
-            -DVERSION_MOOSE=${VERSION_MOOSE}
+            -DMOOSE_VERSION=${VERSION_MOOSE}
         ${MOOSE_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
