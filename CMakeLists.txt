@@ -179,7 +179,7 @@ INSTALL( DIRECTORY ${MOOSE_INSTALL_DIR}/lib/
     )
 
 ## install the launchers,
-install(PROGRAMS ${MOOSE_INSTALL_DIR}/bin/moose.bin DESTINATION bin)
+install(PROGRAMS ${MOOSE_INSTALL_DIR}/bin/moosegui DESTINATION bin)
 
 if( WITH_MOOGLI )
     INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}/
