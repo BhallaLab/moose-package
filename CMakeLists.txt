@@ -6,7 +6,7 @@ if(POLICY CMP0048)
 endif(POLICY CMP0048)
 
 set(WITH_MOOGLI ON)
-set(VERSION_MOOSE 3.1.3)
+set(VERSION_MOOSE 3.2.0)
 
 # CMAKE related option.
 # Don't allow building in-source
