@@ -8,6 +8,10 @@ SET(CMAKE_POLICY CMP0017 ON)
 # A phony target to setup correct depedencies. This is always out-of-date.
 add_custom_target(_moogli_all ALL)
 
+# VERSION.
+set(MOOGLI_VERSION 0.5.0)
+file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/VERSION "${MOOGLI_VERSION}")
+
 set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
 add_custom_target(_build_moogli ALL
     DEPENDS ${MOOGLI_SRC_DIR}/core/_moogli.so
@@ -30,29 +34,56 @@ ENDIF(OSG_LOCAL)
 
 FIND_PACKAGE(PythonInterp REQUIRED)
 
-# Now build MOOGLI. Don't use external project here. There is no simple way to
-# honour environment variable in ExternalProject. 
+
+# On debian or ubuntu, --install-layout=deb needs to be passed.
+if(UNIX AND NOT APPLE)
+    find_program(LSB_RELEASE lsb_release)
+    if(LSB_RELEASE)
+        execute_process(COMMAND ${LSB_RELEASE} -is
+            OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+        if(${LSB_RELEASE_ID_SHORT} STREQUAL "Ubuntu" 
+                OR ${LSB_RELEASE_ID_SHORT} STREQUAL "Debian" )
+            message(STATUS "Debian based LINUX: ${LSB_RELEASE_ID_SHORT}" )
+            # Create a setup.cfg file.
+            file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/setup.cfg
+                "[install]\nprefix=/usr\ninstall-layout=deb" 
+                )
+            set(CMAKE_PYMOOSE_ARGS "-DDISTUTILS_EXTRA_ARGS=\"--install-layout=deb\"" )
+            set(INSTALL_OPTIONS "--layout=deb" )
+        endif( )
+    endif( )
+endif( )
+
+
 set(MOOGLI_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_)
+set(MOOGLI_BDIST_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_bdist)
+set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_install)
 file(MAKE_DIRECTORY ${MOOGLI_BUILD_DIR})
-add_custom_command(
-    OUTPUT ${MOOGLI_SRC_DIR}/core/_moogli.so
+file(MAKE_DIRECTORY ${MOOGLI_BDIST_DIR})
+file(MAKE_DIRECTORY ${MOOGLI_INSTALL_DIR})
+
+add_custom_command( OUTPUT ${MOOGLI_SRC_DIR}/core/_moogli.so
     COMMAND OSGDIR=${OSG_INSTALL_DIR}
         ${CMAKE_COMMAND} -DBUILD_STATIC=${BUILD_STATIC} 
         -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
         ${MOOGLI_SRC_DIR}
     COMMAND $(MAKE) VERBOSE=1
+    COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && ${PYTHON_EXECUTABLE} setup.py bdist_dumb -d ${MOOGLI_BDIST_DIR}
     WORKING_DIRECTORY ${MOOGLI_BUILD_DIR}
     VERBATIM
     )
 add_dependencies(_moogli_all _build_moogli)
 
+add_custom_command( TARGET _moogli_all POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E chdir ${MOOGLI_INSTALL_DIR} 
+        tar xvf ${MOOGLI_BDIST_DIR}/moogli-${MOOGLI_VERSION}*.tar.gz
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
 
 # Install using python setup.py
-SET(INSTALL_OPTIONS "")
-install(CODE
-    "EXECUTE_PROCESS(
-    COMMAND ${PYTHON_EXECUTABLE} setup.py install
-    --prefix=${CMAKE_INSTALL_PREFIX} ${INSTALL_OPTIONS}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        )
-    ")
+install(DIRECTORY  ${MOOGLI_INSTALL_DIR}/usr/ 
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+    )

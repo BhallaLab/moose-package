@@ -39,8 +39,6 @@ To obtain this for cygwin, use cygwin ports:
 and then select All->Libs->libQtGui4-devel for installation (type it in the
 search box to find it easily)
 
-
-
 However, moogli does not compile on cygwin yet because the dependency
 OpenSceneGraph is not available for cygwin. If you want to try,
 OpenSceneGraph build instruction are here:

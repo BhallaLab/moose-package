@@ -24,7 +24,7 @@ __status__           = "Development"
 import sys
 import os
 from distutils.core import setup, Extension
-long_description = open(os.path.join('.', "README.rst")).read()
+long_description = open(os.path.join('.', "README.md")).read()
 
 # check if _moogli.so is available or not.
 soFile = os.path.join('.', 'moogli', 'core', '_moogli.so')
