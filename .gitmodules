@@ -1,8 +1,3 @@
-[submodule "moose"]
-	path = moose
-	url = https://github.com/BhallaLab/moose
-        ignore = dirty
-	branch = chennapoda
 [submodule "moogli"]
 	path = moogli
 	url = https://github.com/BhallaLab/moogli
