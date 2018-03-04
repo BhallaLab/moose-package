@@ -125,7 +125,9 @@ add_custom_command(
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
             -DCMAKE_PYMOOSE_ARGS=${CMAKE_PYMOOSE_ARGS}
             -DCMAKE_INSTALL_PREFIX=${MOOSE_INSTALL_DIR}
-            -DMOOSE_VERSION=${VERSION_MOOSE}
+            # This is unfortunate to name these variables differently. But
+            # project moose automatically sets MOOSE_VRESION in ./moose folder.
+            -DVERSION_MOOSE=${VERSION_MOOSE}
         ${MOOSE_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
