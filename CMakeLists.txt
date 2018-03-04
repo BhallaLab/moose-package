@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(moose-all)
+set(VERSION_MOOSE 3.1.3)
 
 if(POLICY CMP0048)
     cmake_policy( SET CMP0048 OLD )
 endif(POLICY CMP0048)
 
-set(WITH_MOOGLI ON)
-set(VERSION_MOOSE 3.1.3)
+option(WITH_MOOGLI "Enable MOOGLI" ON)
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -197,29 +197,3 @@ add_test(NAME moose-core
 
 ######### CPACK ###############################################################
 include(moose_cpack.cmake)
-
-
-######################## CTEST #################################################
-enable_testing( )
-
-find_package( PythonInterp REQUIRED )
-
-add_test( NAME test_moose 
-    COMMAND ${PYTHON_EXECUTABLE} -c
-    "import moose; print(moose.__file__); print(moose.version( ))" 
-    )
-
-add_test( NAME test_moogli
-    COMMAND ${PYTHON_EXECUTABLE} -c "import moogli" 
-    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages
-    )
-
-add_test( NAME test_gui
-    COMMAND ${PYTHON_EXECUTABLE} mgui.py
-    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/moose/gui
-    )
-
-set_tests_properties(  test_moose test_moogli test_gui 
-    PROPERTIES ENVIRONMENT
-    "PYTHONPATH=${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages"
-    )
