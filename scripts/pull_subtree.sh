@@ -6,4 +6,6 @@ echo "We are on $CUR_BRANCH"
 (
     git subtree pull --prefix moose https://github.com/BhallaLab/moose \
         $CUR_BRANCH --squash 
+    git subtree pull --prefix moogli https://github.com/BhallaLab/moogli \
+        $CUR_BRANCH --squash 
 )
