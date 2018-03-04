@@ -1,0 +1,41 @@
+sudo : required
+
+compiler:
+    - gcc
+    - clang
+os:
+    - linux
+    - osx
+
+allow_failure:
+    - osx
+
+osx_image : xcode8
+
+branches:
+    only:
+        - master
+        - chennapoda
+
+
+notifications:
+    email:
+        recipients:
+            - dilawar.s.rajput@gmail.com
+            - bhalla@ncbs.res.in
+            - hrani@ncbs.res.in
+
+        on_success: change
+        on_failure: always
+
+env:
+    - CTEST_MODEL=Nightly
+
+before_script:
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ./_travis/prepare_linux.sh ; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./_travis/prepare_osx.sh ; fi
+
+
+script:
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ./_travis/build_on_linux.sh ; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./_travis/build_on_osx.sh ; fi

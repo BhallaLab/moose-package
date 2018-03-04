@@ -1,0 +1,15 @@
+moose (3.2.git) UNRELEASED; urgency=medium
+
+    * Nightly build. 
+
+ -- Dilawar Singh <dilawars@ncbs.res.in>  Sat, 16 Dec 2017 10:17:08 +0530
+
+moose (3.0.2) unstable; urgency=low
+
+  * Initial release 
+  * Feature-freeze release.
+  * trunk series. Experimental branch.
+  * 3.0.2 relase.
+  * Just packed with SBML and GSL-1.6 support.
+
+ -- Dilawar Singh <dilawars@ncbs.res.in>  Sun, 05 Jul 2015 13:41:58 +0530
