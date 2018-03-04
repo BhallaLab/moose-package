@@ -7,7 +7,7 @@ if(POLICY CMP0048)
 endif(POLICY CMP0048)
 
 set(WITH_MOOGLI ON)
-set(VERSION_MOOSE 3.2.0)
+set(VERSION_MOOSE 3.1.3)
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -141,7 +141,6 @@ add_dependencies(moose_all moose )
 # MOOGLI
 ################################################################################
 if( WITH_MOOGLI )
-# Build moogli
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
     set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_install)
     set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_build)
@@ -162,8 +161,7 @@ if( WITH_MOOGLI )
         )
 
     add_dependencies(moose_all moogli)
-
-endif( WITH_MOOGLI )
+endif(WITH_MOOGLI)
 
 ################################################################################
 # OTHERS
