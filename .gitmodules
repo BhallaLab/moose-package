@@ -1,7 +1,3 @@
-[submodule "moogli"]
-	path = moogli
-	url = https://github.com/BhallaLab/moogli
-        ignore = dirty
 [submodule "external/hdf5"]
 	path = external/hdf5
 	url = https://github.com/BhallaLab/hdf5
