@@ -1,51 +1,24 @@
-sudo: required
-
 language: cpp
-
-compiler:
-    - gcc
-    - clang
-os:
-    - linux
-
 notifications:
     email:
         recipients:
             - dilawar.s.rajput@gmail.com
+            - bhalla@ncbs.res.in
+
         on_success: change
         on_failure: always
 
-cache: apt
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -y libopenscenegraph-dev
+    - sudo apt-get install -y libqt4-dev
+    - sudo apt-get install -y libqt4-opengl-dev
+    - sudo apt-get install -y python-qt4-gl
+    - sudo apt-get install -y python-qt4-dev
+    - sudo apt-get install -y python-sip-dev
 
-#matrix:
-#    allow_failures:
-#        - clang
-
-before_script:
-    - sudo apt-get install -qq libxml2-dev libbz2-dev
-    - sudo apt-get install -qq libhdf5-serial-dev libgsl0-dev
-    - sudo apt-get install -qq make cmake
-    - sudo apt-get install -qq python-numpy python-matplotlib python-networkx
-    - sudo apt-get install -qq libboost-all-dev
-    - sudo apt-get install -qq libgsl0-dev libqt4-dev python-sip python-qt4
-    - sudo apt-get install -qq python-qt4-dev
-    - sudo apt-get install -qq python-pip
-    - sudo apt-get install -qq libgraphviz-dev
-    - sudo apt-get install -qq libopenscenegraph-dev
-    - sudo apt-get install -qq python-numpy python-matplotlib
-
-install:
-    - echo "nothing to do here"
-
-script:
-    - ## CMAKE based flow
-    - export PATH=/usr/bin:$PATH
-    - mkdir -p _BUILD && cd _BUILD && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-    - make -j4
-    - ctest --output-on-failure
-    - sudo make install
-    - which python
-    - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moose'
-    - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moogli'
-    - python -v -c 'import moose' || echo "Failed to import moose"
-    - python -v -c 'import moogli' || echo "Failed to import moogli"
+script: 
+    - mkdir -p _build
+    - cd _build
+    - cmake ..
+    - make -j`nproc`

@@ -1,8 +1,0 @@
-[submodule "external/hdf5"]
-	path = external/hdf5
-	url = https://github.com/BhallaLab/hdf5
-        ignore = dirty
-[submodule "external/gsl"]
-	path = external/gsl
-	url = https://github.com/BhallaLab/gsl
-        ignore = dirty
