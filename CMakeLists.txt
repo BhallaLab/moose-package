@@ -8,6 +8,7 @@ if(POLICY CMP0048)
 endif(POLICY CMP0048)
 
 option(WITH_MOOGLI "Enable MOOGLI" ON)
+message( STATUS "MOOGLI enabled? ${WITH_MOOGLI}" )
 
 # CMAKE related option.
 # Don't allow building in-source
@@ -140,26 +141,21 @@ add_dependencies(moose_all moose )
 ################################################################################
 # MOOGLI
 ################################################################################
-if( WITH_MOOGLI )
+if(WITH_MOOGLI)
+    message(STATUS "MOOGLI is enabled" )
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
     set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_install)
     set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_build)
     file(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
     file(MAKE_DIRECTORY ${MOOGLI_INSTALL_DIR} )
-    add_custom_command(
-        OUTPUT ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
-        COMMAND ${CMAKE_COMMAND} 
-            -DCMAKE_INSTALL_PREFIX=${MOOGLI_INSTALL_DIR} ${MOOGLI_SRC_DIR}
-        COMMAND $(MAKE)
+    add_custom_target(moogli ALL
+        COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOGLI_INSTALL_DIR} ${MOOGLI_SRC_DIR}
+        COMMAND $(MAKE) bdist
         COMMAND $(MAKE) install
         WORKING_DIRECTORY ${MOOGLI_BIN_DIR}
+        COMMENT "Building MOOGLI"
         VERBATIM
         )
-
-    add_custom_target(moogli ALL
-        DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
-        )
-
     add_dependencies(moose_all moogli)
 endif(WITH_MOOGLI)
 
@@ -181,18 +177,11 @@ INSTALL( DIRECTORY ${MOOSE_INSTALL_DIR}/lib/
 ## install the launchers,
 install(PROGRAMS ${MOOSE_INSTALL_DIR}/bin/moosegui DESTINATION bin)
 
-if( WITH_MOOGLI )
-    INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}/
-        DESTINATION ${CMAKE_INSTALL_PREFIX}
-        USE_SOURCE_PERMISSIONS
-        )
-endif( WITH_MOOGLI )
-
-## Tests.
-enable_testing()
-add_test(NAME moose-core 
-    COMMAND ctest -R pymoose* --output-on-failure
-    WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}
+# Install moogli
+message(STATUS "Installing moogli")
+INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+    USE_SOURCE_PERMISSIONS
     )
 
 ######### CPACK ###############################################################
