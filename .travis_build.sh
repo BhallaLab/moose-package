@@ -27,5 +27,6 @@ make -j4
 ctest -V
 make install
 export PYTHONPATH=/tmp/usr/lib/
+echo "Testing moose/moogli. PYTHONPATH=$PYTHONPATH"
 python -c 'import moose;print(moose.__file__);print(moose.version())'
 python -c 'import moogli;print(moogli.__file__);' 
