@@ -1,9 +1,12 @@
 language: cpp
+compiler:
+    - gcc
+
 notifications:
     email:
         recipients:
             - dilawar.s.rajput@gmail.com
-            - bhalla@ncbs.res.in
+            - upi.bhalla@gmail.com
 
         on_success: change
         on_failure: always
@@ -16,7 +19,9 @@ before_install:
     - sudo apt-get install -y python-qt4-gl
     - sudo apt-get install -y python-qt4-dev
     - sudo apt-get install -y python-sip-dev
-    - sudo pip install pymoose
+    - sudo apt-get install -y g++ gcc
+    - sudo apt-get install -y python-pip
+    - sudo /usr/bin/pip install pymoose
 
 script: 
     - ./.travis_build.sh
