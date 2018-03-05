@@ -39,13 +39,4 @@ install:
 
 script:
     - ## CMAKE based flow
-    - export PATH=/usr/bin:$PATH
-    - mkdir -p _BUILD && cd _BUILD && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-    - make -j4
-    - ctest --output-on-failure
-    - sudo make install
-    - which python
-    - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moose'
-    - # PYTHONPATH=/usr/lib/python2.7/site-pacakges python -c 'import moogli'
-    - python -v -c 'import moose' || echo "Failed to import moose"
-    - python -v -c 'import moogli' || echo "Failed to import moogli"
+    - ./.travis_build.sh
