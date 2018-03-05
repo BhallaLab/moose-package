@@ -21,6 +21,7 @@ before_install:
     - sudo apt-get install -y python-sip-dev
     - sudo apt-get install -y g++ gcc
     - sudo apt-get install -y python-pip
+    - sudo apt-get install -y python-numpy cmake
     - sudo /usr/bin/pip install pymoose
 
 script: 

@@ -1,9 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(moogli)
-SET(CMAKE_POLICY CMP0017 ON)
 
+# moogli project is inside ./moogli 
 # NOTE: The main cmake file is in ./moogli folder. This script is a top-level
 # script to call ./moogli/CMakeLists.txt with proper environment variables set.
+project( build_moogli LANGUAGES)
+
+set(CMAKE_POLICY CMP0017 ON)
+
 
 # A phony target to setup correct depedencies. This is always out-of-date.
 add_custom_target(_moogli_all ALL)

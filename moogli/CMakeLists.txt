@@ -1,33 +1,17 @@
-CMAKE_MINIMUM_REQUIRED(VERSION "2.6")
+cmake_minimum_required(VERSION 2.8)
+project(moogli)
 
-
-
-
-SET(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 
 ## Options
 option(BUILD_STATIC "Link osg statically. Useful for creating standalone packages" OFF)
 
-## Enable/Disable 2011 stupport.
-include(CheckCXXCompilerFlag)
+add_definitions(-std=c++11)
 
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-
-if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif(COMPILER_SUPPORTS_CXX11)
-
-IF(APPLE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-ENDIF(APPLE)
-
-ADD_DEFINITIONS(-fPIC)
+if(APPLE)
+    add_definitions( "-stdlib=libc++" )
+endif(APPLE)
+add_definitions(-fPIC)
 
 FIND_PACKAGE(PythonDev REQUIRED)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
