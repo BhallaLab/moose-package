@@ -20,10 +20,10 @@
 set -o nounset                                  # Treat unset variables as an error
 set -e -x
 
+PATH=/usr/bin:/usr/local/bin:$PATH
 mkdir -p _build
 cd _build
 cmake -DCMAKE_INSTALL_PREFIX=/tmp/moogli/usr ..
-make -j`nproc`
-make install
+make -j4 && make bdist && make install
 export PYTHONPATH=/tmp/moogli$(python -c 'import site;print(site.getsitepackages()[-1])')
-python -c 'import moogli;print(moogli.__file__);'
+python -c 'import moogli;print(moogli.__file__)'
