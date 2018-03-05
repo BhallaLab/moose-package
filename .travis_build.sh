@@ -18,7 +18,7 @@
 #===============================================================================
 
 set -o nounset                                  # Treat unset variables as an error
-set -e
+set -e -x
 export PATH=/usr/bin:/usr/local/bin:$PATH
 mkdir -p _BUILD 
 cd _BUILD 
@@ -26,7 +26,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/tmp/usr -DWITH_MOOGLI=ON ..
 make -j4
 ctest -V
 make install
-export PYTHONPATH=/tmp/usr/lib/
+export PYTHONPATH=/tmp/usr/lib/python2.7/dist-packages
 echo "Testing moose/moogli. PYTHONPATH=$PYTHONPATH"
 python -c 'import moose;print(moose.__file__);print(moose.version())'
 python -c 'import moogli;print(moogli.__file__);' 
