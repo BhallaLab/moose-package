@@ -24,7 +24,12 @@ __status__           = "Development"
 import sys
 import os
 from distutils.core import setup, Extension
-long_description = open(os.path.join('.', "README.rst")).read()
+long_description = open(os.path.join('.', "README.md")).read()
+
+_version = '0.5.git'
+if os.path.exists( 'VERSION' ):
+    with open( 'VERSION', 'r' ) as f:
+        _version = f.read( )
 
 # check if _moogli.so is available or not.
 soFile = os.path.join('.', 'moogli', 'core', '_moogli.so')
@@ -38,7 +43,7 @@ setup(name='moogli',
         author_email='aviralg@ncbs.res.in',
         maintainer='Dilawar Singh',
         maintainer_email='dilawars@ncbs.res.in',
-        version="0.5.0",
+        version=_version,
         url='https://github.com/BhallaLab/moogli',
         download_url='https://github.com/aviralg/moogli',
         description="A 3D visualizer for neuronal networks",
