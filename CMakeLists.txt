@@ -148,7 +148,7 @@ if(WITH_MOOGLI)
     set(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_build)
     file(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
     file(MAKE_DIRECTORY ${MOOGLI_INSTALL_DIR} )
-    add_custom_target(moogli ALL
+    add_custom_target(build_moogli ALL
         COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOGLI_INSTALL_DIR} ${MOOGLI_SRC_DIR}
         COMMAND $(MAKE) bdist
         COMMAND $(MAKE) install
@@ -156,7 +156,7 @@ if(WITH_MOOGLI)
         COMMENT "Building MOOGLI"
         VERBATIM
         )
-    add_dependencies(moose_all moogli)
+    add_dependencies(moose_all build_moogli)
 endif(WITH_MOOGLI)
 
 ################################################################################

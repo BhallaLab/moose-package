@@ -23,8 +23,8 @@ export PATH=/usr/bin:/usr/local/bin:$PATH
 mkdir -p _BUILD 
 cd _BUILD 
 cmake -DCMAKE_INSTALL_PREFIX=/tmp/usr -DWITH_MOOGLI=ON ..
-make -j4
-ctest -V
+make -j`nproc`
+ctest --output-on-failure
 make install
 export PYTHONPATH=/tmp/usr/lib/python2.7/dist-packages
 echo "Testing moose/moogli. PYTHONPATH=$PYTHONPATH"
