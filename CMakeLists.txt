@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(moose)
-
 if(POLICY CMP0048)
     cmake_policy(SET CMP0048 OLD )
 endif(POLICY CMP0048)
@@ -23,6 +22,9 @@ elseif(GIT_EXEC)
 endif( )
 message( STATUS "Building version ${VERSION_MOOSE}" )
 
+# Prefix
+message( STATUS "CMAKE_INSTALL_PREFIX= ${CMAKE_INSTALL_PREFIX}" )
+
 # Options to pass down to moose-core
 option(WITH_DOC "Build documentation" OFF)
 option(DEBUG "Build with DEBUG support" OFF)
@@ -43,6 +45,7 @@ add_custom_target(moose ALL)
 set(PYMOOSE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/moose-core")
 set(PYMOOSE_BUILD_DIR ${CMAKE_BINARY_DIR}/__moose-core_build)
 set(PYMOOSE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose-core_install)
+file(MAKE_DIRECTORY ${PYMOOSE_INSTALL_DIR})
 
 if(WITH_GUI)
     set(MOOSE_GUI_DIR ${CMAKE_SOURCE_DIR}/moose-gui)
@@ -58,13 +61,17 @@ file(MAKE_DIRECTORY ${PYMOOSE_BUILD_DIR})
 # different platform.
 set(OUTPUT_MOOSEBIN ${PYMOOSE_BUILD_DIR}/moose.bin)
 
-configure_file( ${CMAKE_SOURCE_DIR}/cmake/build_moose-core.sh.in 
-    ${CMAKE_BINARY_DIR}/build_moose-core.sh )
+configure_file( 
+    ${CMAKE_SOURCE_DIR}/cmake/build_moose-core.sh.in 
+    ${PYMOOSE_BUILD_DIR}/build_moose-core.sh 
+    )
 
 # Build pymoose module.
-add_custom_target( moose-core ALL DEPENDS ${OUTPUT_MOOSEBIN} )
+add_custom_target( moose-core DEPENDS ${OUTPUT_MOOSEBIN} )
 add_custom_command( OUTPUT ${OUTPUT_MOOSEBIN}
-    COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_moose-core.sh
+    COMMAND ${PYMOOSE_BUILD_DIR}/build_moose-core.sh
+    WORKING_DIRECTORY ${PYMOOSE_BUILD_DIR}
+    COMMENT "Building pymoose in ${PYMOOSE_BUILD_DIR}"
     VERBATIM
     )
 
@@ -94,7 +101,7 @@ endif()
 
 
 
-install(DIRECTORY ${PYMOOSE_INSTALL_DIR}/
+install(DIRECTORY ${PYMOOSE_INSTALL_DIR}/usr/
     DESTINATION ${CMAKE_INSTALL_PREFIX}
     PATTERN ".git" EXCLUDE
     PATTERN "*.pyc" EXCLUDE
@@ -144,18 +151,20 @@ endif()
 ################################################################################
 # CTEST 
 #################################################################################
-enable_testing( )
-add_test( NAME test_pymoose_sanity 
-    COMMAND ${PYTHON_EXECUTABLE} -c "import moose"
-    )
+if("${CMAKE_BUILD_TYPE}" EQUAL "DEBUG")
+    enable_testing( )
+    add_test( NAME test_pymoose_sanity 
+        COMMAND ${PYTHON_EXECUTABLE} -c "import moose"
+        )
 
-if(WITH_GUI)
-    add_test( NAME test_gui_sanity 
-        COMMAND ${PYTHON_EXECUTABLE} ${MOOSE_GUI_INSTALL_DIR}/mgui.py 
-        WORKING_DIRECTORY ${MOOSE_GUI_INSTALL_DIR}
+    if(WITH_GUI)
+        add_test( NAME test_gui_sanity 
+            COMMAND ${PYTHON_EXECUTABLE} ${MOOSE_GUI_INSTALL_DIR}/mgui.py 
+            WORKING_DIRECTORY ${MOOSE_GUI_INSTALL_DIR}
+            )
+    endif()
+
+    set_tests_properties( test_pymoose_sanity 
+        PROPERTIES ENVIRONMENT "PYTHONPATH=${PYMOOSE_BUILD_DIR}/python"
         )
 endif()
-
-set_tests_properties( test_pymoose_sanity 
-    PROPERTIES ENVIRONMENT "PYTHONPATH=${PYMOOSE_BUILD_DIR}/python"
-    )
