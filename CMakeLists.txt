@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # moogli project is inside ./moogli 
 # NOTE: The main cmake file is in ./moogli folder. This script is a top-level
 # script to call ./moogli/CMakeLists.txt with proper environment variables set.
-project( build_moogli LANGUAGES)
+project(build_moogli)
 
 set(CMAKE_POLICY CMP0017 ON)
 
@@ -75,8 +75,6 @@ add_custom_command( OUTPUT ${MOOGLI_MAIN_OUTFILE}
             -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
             ${MOOGLI_SRC_DIR}
     COMMAND $(MAKE) VERBOSE=1
-    COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && ${PYTHON_EXECUTABLE} setup.py 
-        bdist_dumb -d ${MOOGLI_BDIST_DIR}
     WORKING_DIRECTORY ${MOOGLI_BUILD_DIR}
     VERBATIM
     )
