@@ -85,7 +85,7 @@ add_dependencies(_moogli_all build_moogli)
 add_custom_target( bdist DEPENDS build_moogli )
 add_custom_command( TARGET bdist 
     COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && ${PYTHON_EXECUTABLE} setup.py 
-        bdist_dumb -d ${MOOGLI_BDIST_DIR}
+        bdist -d ${MOOGLI_BDIST_DIR}
     COMMAND ${CMAKE_COMMAND} -E chdir ${MOOGLI_BDIST_INSTALL_DIR} 
     tar xvf ${MOOGLI_BDIST_DIR}/moogli-${MOOGLI_VERSION}*.tar.gz
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
