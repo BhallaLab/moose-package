@@ -53,8 +53,6 @@ if(UNIX AND NOT APPLE)
             file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/setup.cfg
                 "[install]\nprefix=/usr\ninstall-layout=deb" 
                 )
-            set(CMAKE_PYMOOSE_ARGS "-DDISTUTILS_EXTRA_ARGS=\"--layout=deb\"" )
-            set(INSTALL_OPTIONS "--layout=deb" )
         endif( )
     endif( )
 endif( )
@@ -74,7 +72,7 @@ add_custom_command( OUTPUT ${MOOGLI_MAIN_OUTFILE}
         ${CMAKE_COMMAND} -DBUILD_STATIC=${BUILD_STATIC} 
             -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
             ${MOOGLI_SRC_DIR}
-    COMMAND $(MAKE) VERBOSE=1
+    COMMAND $(MAKE) 
     WORKING_DIRECTORY ${MOOGLI_BUILD_DIR}
     VERBATIM
     )
