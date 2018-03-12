@@ -27,4 +27,4 @@ ADD_CUSTOM_TARGET(_libosg ALL
 
 MESSAGE(STATUS "Setting OSGDIR environment variable")
 SET(ENV{OSGDIR} "${OSG_INSTALL_DIR}")
-add_dependencies(_build_moogli _libosg)
+#add_dependencies(build_moogli _libosg)
