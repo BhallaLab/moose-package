@@ -25,7 +25,7 @@ cd _BUILD
 cmake -DCMAKE_INSTALL_PREFIX=/tmp/usr -DWITH_MOOGLI=ON ..
 make -j4
 make install
-SITEDIR=$(python -c 'import site;print(site.getsitepackages()[0]')
+SITEDIR=$(python -c 'import site;print(site.getsitepackages()[0])')
 export PYTHONPATH=/tmp/${SITEDIR}
 echo "Testing moose/moogli. PYTHONPATH=$PYTHONPATH"
 python -c 'import moose;print(moose.__file__);print(moose.version())'
