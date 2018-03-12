@@ -6,7 +6,8 @@ if(POLICY CMP0048)
     cmake_policy( SET CMP0048 OLD )
 endif(POLICY CMP0048)
 
-set(WITH_MOOGLI ON)
+option(WITH_MOOGLI "Building with MOOGLI" ON)
+
 set(VERSION_MOOSE 3.2.0)
 
 # CMAKE related option.
@@ -29,7 +30,12 @@ endif()
 ################################################################################
 # BUILD
 ################################################################################
+
+# Add some target to maintain dependencies.
 add_custom_target(moose_all ALL)
+
+set(MOOSE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_install)
+add_custom_target(build_moose DEPENDS ${MOOSE_INSTALL_DIR}/bin/moose.bin)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
 set(CMAKE_BUILD_TYPE Release)
@@ -40,12 +46,12 @@ find_package(GSL 1.16)
 # THIS IS USEFULL TO BUILD MOOSE FOR VARIOUS DISTRIBUTIONS.
 if(NOT GSL_FOUND)
     MESSAGE(STATUS "No GSL found. Using local gsl")
-    set(LOCAL_GSL 1)
+    set(LOCAL_GSL ON)
 else()
     message(STATUS "GSL_VERSION ${GSL_VERSION}")
     if(${GSL_VERSION} VERSION_LESS 1.16)
         MESSAGE(STATUS  "Needed version 1.16. I'll now build priavate copy of GSL" )
-        SET(LOCAL_GSL 1)
+        SET(LOCAL_GSL ON)
     endif()
 endif()
 
@@ -94,32 +100,28 @@ endif(LOCAL_GSL)
 ## NOW setup MOOSE project.
 set(MOOSE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/moose )
 set(MOOSE_BUILD_DIR ${CMAKE_BINARY_DIR}/__moose_build)
-set(MOOSE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_install)
-add_custom_target(moose ALL DEPENDS ${MOOSE_INSTALL_DIR}/bin/moose.bin )
 
 # Create dependency targets.
 if(LOCAL_GSL)
-    add_custom_target( gsl ALL DEPENDS ${GSL_INSTALL_DIR}/bin/gsl-config )
-    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/bin/gsl-config 
+    message(STATUS "Creating target for local gsl" )
+    add_custom_command( TARGET build_moose PRE_BUILD
         COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
+        COMMENT "Building private GSL"
         VERBATIM
         )
-    add_dependencies( moose gsl )
 endif(LOCAL_GSL)
 
 if(NOT HDF5_FOUND)
-    add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
-    add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
+    add_custom_command( TARGET build_moose PRE_BUILD
+        #OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
         COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf5.sh 
         VERBATIM
         )
-    add_dependencies( moose hdf )
 endif(NOT HDF5_FOUND)
 
 # Once dependencies are built, build moose project.
 file(MAKE_DIRECTORY ${MOOSE_BUILD_DIR})
-add_custom_command( 
-    OUTPUT ${MOOSE_INSTALL_DIR}/bin/moose.bin 
+add_custom_command( OUTPUT ${MOOSE_INSTALL_DIR}/bin/moose.bin 
     COMMAND ${CMAKE_COMMAND} 
             -DHDF5_ROOT=${HDF5_INSTALL_DIR}
             -DGSL_ROOT_DIR=${GSL_INSTALL_DIR}
@@ -135,12 +137,12 @@ add_custom_command(
     VERBATIM 
     )
 
-add_dependencies(moose_all moose )
+add_dependencies(moose_all build_moose )
 
 ################################################################################
 # MOOGLI
 ################################################################################
-if( WITH_MOOGLI )
+if(WITH_MOOGLI)
 # Build moogli
     set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
     set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moogli_install)
@@ -160,9 +162,7 @@ if( WITH_MOOGLI )
     add_custom_target(moogli ALL
         DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
         )
-
     add_dependencies(moose_all moogli)
-
 endif( WITH_MOOGLI )
 
 ################################################################################

@@ -148,7 +148,12 @@ set(STATIC_LIBRARIES "" )
 # Collect all shared libraries here.
 set(SYSTEM_SHARED_LIBS ${LibXML2_LIBRARIES})
 
+
 if(WITH_GSL)
+    message(DEBUG "GSL_ROOT_DIR $ENV{GSL_ROOT_DIR}" )
+    if(GSL_ROOT_DIR)
+        message(STATUS "Searching for GSL in ${GSL_ROOT_DIR}" )
+    endif(GSL_ROOT_DIR)
     find_package(GSL 1.16 REQUIRED)
     if(NOT GSL_FOUND)
         message(FATAL_ERROR
