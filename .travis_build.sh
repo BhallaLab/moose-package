@@ -24,7 +24,6 @@ mkdir -p _BUILD
 cd _BUILD 
 cmake -DCMAKE_INSTALL_PREFIX=/tmp/usr -DWITH_MOOGLI=ON ..
 make -j4
-ctest -V
 make install
 SITEDIR=$(python -c 'import site;print(site.getsitepackages()[0]')
 export PYTHONPATH=/tmp/${SITEDIR}
