@@ -32,6 +32,11 @@ endif()
 ################################################################################
 add_custom_target(moose_all ALL)
 
+set(MOOSE_INSTALL_DIR ${CMAKE_BINARY_DIR}/__moose_install)
+add_custom_target(build_moose ALL 
+    DEPENDS ${MOOSE_INSTALL_DIR}/bin/moose.bin
+    )
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/moose/moose-core/cmake_modules)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_INSTALL_RPATH "")
@@ -100,21 +105,24 @@ add_custom_target(moose ALL DEPENDS ${MOOSE_INSTALL_DIR}/bin/moose.bin )
 
 # Create dependency targets.
 if(LOCAL_GSL)
-    add_custom_target( gsl ALL DEPENDS ${GSL_INSTALL_DIR}/bin/gsl-config )
-    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/bin/gsl-config 
-        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
+    message(STATUS "Creating target for local gsl" )
+    add_custom_target( build_static_gsl DEPENDS ${GSL_INSTALL_DIR}/lib/libgsl.a )
+    add_custom_command( OUTPUT ${GSL_INSTALL_DIR}/lib/libgsl.a
+        COMMAND ${CMAKE_BINARY_DIR}/build_static_gsl.sh 
+        COMMENT "Building private GSL"
         VERBATIM
         )
-    add_dependencies( moose gsl )
+    add_dependencies( build_moose build_static_gsl )
 endif(LOCAL_GSL)
 
 if(NOT HDF5_FOUND)
-    add_custom_target( hdf5 ALL DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
+    add_custom_target( build_static_hdf DEPENDS ${HDF5_INSTALL_DIR}/lib/libhdf5.a )
     add_custom_command( OUTPUT ${HDF5_INSTALL_DIR}/lib/libhdf5.a 
-        COMMAND MAKE=$(MAKE) bash -c ${CMAKE_BINARY_DIR}/build_static_hdf5.sh 
+        COMMAND ${CMAKE_BINARY_DIR}/build_static_hdf5.sh 
+        COMMENT "Building statis hdf5"
         VERBATIM
         )
-    add_dependencies( moose hdf )
+    add_dependencies( build_moose build_static_hdf )
 endif(NOT HDF5_FOUND)
 
 # Once dependencies are built, build moose project.
